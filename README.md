@@ -19,3 +19,7 @@ Daten speichern müssen. Ein paar Stichpunkte:
 - Wenn der Counter 0 erreicht wird die Domain wieder freigegeben
 	- Token wird gelöscht
 	- Domain kann wieder registriert werden
+
+Über das Token könnte man auch zusätzliche Dinge realisieren, die Authentifizierung benötigen.
+Z.B. ein simples Webinterface um einzusehen, wann die Domain zuletzt geupdatet wurde oder um sie
+manuell freizugeben.
