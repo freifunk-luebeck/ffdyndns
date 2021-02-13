@@ -20,6 +20,9 @@ Daten speichern müssen. Ein paar Stichpunkte:
 	- Token wird gelöscht
 	- Domain kann wieder registriert werden
 
+Um Spam zu vermeiden sollten wir ein captcha in irgendeiner Form nutzen.
+
+
 Über das Token könnte man auch zusätzliche Dinge realisieren, die Authentifizierung benötigen.
 Z.B. ein simples Webinterface um einzusehen, wann die Domain zuletzt geupdatet wurde oder um sie
 manuell freizugeben.
