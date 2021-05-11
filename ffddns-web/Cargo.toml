@@ -8,6 +8,11 @@ edition = "2018"
 
 [dependencies]
 rocket = "0.4.7"
+rocket_contrib = "*"
 rusqlite = {version = "0.21", features = ["chrono", "serde_json"]}
 chrono = "0.4.19"
 rand = "0.8.3"
+tera = "1.6.1"
+log = "*"
+serde_json = "1.0.64"
+serde = {version = "1.0.125", features = ["derive"]}

@@ -102,3 +102,35 @@ impl Domain {
 		}
 	}
 }
+
+impl Domain {
+	pub fn new_with_token(domain: String, token: String) -> Self {
+		Self {
+			domainname: domain,
+			token: token,
+			lastupdate: None,
+			ipv4: None,
+			ipv6: None
+		}
+	}
+
+	/// creates a new Domain object and generates a random token
+	pub fn new(domain: String) -> Self {
+		Self {
+			domainname: domain,
+			token: generate_token(),
+			lastupdate: None,
+			ipv4: None,
+			ipv6: None
+		}
+	}
+}
+
+
+pub fn generate_token() -> String {
+	let mut token = String::new();
+	for _ in 0..8 {
+		token.push_str(&format!("{:02x}", rand::random::<u8>()));
+	}
+	token
+}

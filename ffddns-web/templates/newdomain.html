@@ -1,0 +1,33 @@
+{% include "head" %}
+
+<body>
+	{% include "navbar" %}
+	<div class="container">
+		<h1>Create a new Domain</h1>
+		{% if error %}
+			<div class="alert alert-danger" role="alert">
+				{{ error_msg }}
+			</div>
+		{% endif %}
+		{% if not form_request %}
+			<form action="/newdomain" method="GET">
+				<div class="mb-3">
+					<label for="domainname" class="form-label">Domain name</label>
+					<input type="text" class="form-control" id="domainname" name="domainname" required aria-describedby="domainnameHelp">
+					<div id="domainnameHelp" class="form-text">Your domain name</div>
+				</div>
+				<div class="mb-3 form-check">
+					<input type="checkbox" class="form-check-input" id="exampleCheck1">
+					<label class="form-check-label" for="exampleCheck1">Check me out</label>
+				</div>
+				<button type="submit" class="btn btn-primary">Submit</button>
+			</form>
+		{% endif %}
+		{% if form_request and created %}
+			<div class="alert alert-success" role="alert">
+				Your domain was successfully created! <br>
+				Your token is: <span class="badge bg-light text-dark">{{ token }}</span>
+			</div>
+		{% endif %}
+	</div>
+</body>

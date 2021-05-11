@@ -1,4 +1,4 @@
-# FFDDNS
+# FFdynDNS
 
 Freifunk dynamic DNS Service
 
