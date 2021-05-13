@@ -16,3 +16,5 @@ tera = "1.6.1"
 log = "*"
 serde_json = "1.0.64"
 serde = {version = "1.0.125", features = ["derive"]}
+toml = "0.5.8"
+lazy_static = "1.4.0"
