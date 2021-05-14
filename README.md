@@ -1,5 +1,5 @@
 # FFdynDNS
-[![pipeline status](https://git.chaotikum.org/paul/ffddns/badges/master/pipeline.svg)](https://git.chaotikum.org/paul/ffddns/-/commits/master)
+[![pipeline status](https://git.chaotikum.org/paul/ffdyndns/badges/master/pipeline.svg)](https://git.chaotikum.org/paul/ffddns/-/commits/master)
 
 Freifunk dynamic DNS Service
 
