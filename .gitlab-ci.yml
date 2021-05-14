@@ -1,5 +1,11 @@
 image: rustlang/rust:nightly
 
+
+before_script:
+  - apt update
+  - apt install -y build-essential
+
+
 build:
   script:
     - cargo build
