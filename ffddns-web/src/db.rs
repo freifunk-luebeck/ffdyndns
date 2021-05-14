@@ -3,10 +3,13 @@ use sqlite::params;
 use std::path::PathBuf;
 use chrono::{Utc, DateTime};
 use std::net::{Ipv4Addr, Ipv6Addr};
+use log::{info};
+use std::sync::{Mutex, Arc};
+use rocksdb;
 
 
 pub struct Database {
-	conn: sqlite::Connection,
+	conn: Arc<Mutex<sqlite::Connection>>,
 }
 
 
@@ -18,11 +21,13 @@ impl Database {
 	pub fn new(path: PathBuf) -> Self {
 		let conn: sqlite::Connection = sqlite::Connection::open(&path).unwrap();
 		conn.execute_batch(include_str!("init.sql")).unwrap();
-		Database { conn }
+		conn.pragma(None, "synchronous", &"OFF".to_string(), |_| Ok(())).unwrap();
+		Database { conn: Arc::new(Mutex::new(conn)) }
 	}
 
 	pub fn get_all_domains(&self) -> Vec<Domain> {
-		let mut stmt: sqlite::Statement = self.conn.prepare("SELECT * FROM domains").unwrap();
+		let db = self.conn.lock().unwrap();
+		let mut stmt: sqlite::Statement = db.prepare("SELECT * FROM domains").unwrap();
 
 		stmt.query_map(
 			params![],
@@ -31,7 +36,7 @@ impl Database {
 	}
 
 	pub fn insert_new_domain(&self, d: &Domain) {
-		self.conn.execute(
+		self.conn.lock().unwrap().execute(
 			"INSERT INTO domains VALUES ($1, $2, $3, $4, $5)",
 			params![d.domainname, d.token, d.lastupdate, d.ipv4.map(|x| x.to_string()), d.ipv6.map(|x| x.to_string())]
 		).unwrap();
@@ -39,7 +44,7 @@ impl Database {
 
 
 	pub fn get_domain(&self, domain: &String) -> Option<Domain> {
-		let r: sqlite::Result<_> = self.conn.query_row_and_then(
+		let r: sqlite::Result<_> = self.conn.lock().unwrap().query_row_and_then(
 			"SELECT * FROM domains WHERE domainname=$1",
 			params![domain],
 			|row| Ok(Domain::from_row(row))
@@ -52,7 +57,7 @@ impl Database {
 	}
 
 	pub fn remove_domain(&self, d: String) {
-		self.conn.execute(
+		self.conn.lock().unwrap().execute(
 			"DELETE FROM domains WHERE domainname=$1",
 			params![d]
 		).unwrap();
@@ -60,21 +65,22 @@ impl Database {
 
 
 	pub fn update_lastupdate(&self, d: &String, lastupdate: DateTime<Utc>) {
-		self.conn.execute(
+		self.conn.lock().unwrap().execute(
 			"UPDATE domains SET lastupdate=$2 WHERE domainname=$1",
 			params![d, lastupdate]
 		).unwrap();
 	}
 
 	pub fn update_ipv4(&self, d: &String, addr: Ipv4Addr) {
-		self.conn.execute(
+		info!("updating {}", d);
+		self.conn.lock().unwrap().execute(
 			"UPDATE domains SET ipv4=$2 WHERE domainname=$1",
 			params![d, addr.to_string()]
 		).unwrap();
 	}
 
 	pub fn update_ipv6(&self, d: &String, addr: Ipv6Addr) {
-		self.conn.execute(
+		self.conn.lock().unwrap().execute(
 			"UPDATE domains SET ipv6=$2 WHERE domainname=$1",
 			params![d, addr.to_string()]
 		).unwrap();
