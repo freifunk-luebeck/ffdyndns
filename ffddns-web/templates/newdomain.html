@@ -6,28 +6,43 @@
 		<h1>Create a new Domain</h1>
 		{% if error %}
 			<div class="alert alert-danger" role="alert">
-				{{ error_msg }}
+				Error: {{ errormsg.Err }}
 			</div>
 		{% endif %}
-		{% if not form_request %}
-			<form action="/newdomain" method="GET">
-				<div class="mb-3">
-					<label for="domainname" class="form-label">Domain name</label>
-					<input type="text" class="form-control" id="domainname" name="domainname" required aria-describedby="domainnameHelp">
-					<div id="domainnameHelp" class="form-text">Your domain name</div>
-				</div>
-				<div class="mb-3 form-check">
-					<input type="checkbox" class="form-check-input" id="exampleCheck1">
-					<label class="form-check-label" for="exampleCheck1">Check me out</label>
-				</div>
-				<button type="submit" class="btn btn-primary">Submit</button>
-			</form>
-		{% endif %}
-		{% if form_request and created %}
+		{% if form_request and token.Ok %}
 			<div class="alert alert-success" role="alert">
 				Your domain was successfully created! <br>
-				Your token is: <span class="badge bg-light text-dark">{{ token }}</span>
+				Your token is: <span class="badge bg-light text-dark">{{ token.Ok }}</span>
 			</div>
+			<div>
+				<code>curl http://localhost:8083/api/update?token={{ token.Ok }}&domain=</code>
+			</div>
+		{% endif %}
+
+		{% if not form_request %}
+			<form class="row g-3" action="/newdomain" method="GET">
+				<div class="col-8">
+					<label for="domainname" class="form-label">Domain name</label>
+					<input type="text" class="form-control" id="domainname" name="domainname" required aria-describedby="domainnameHelp">
+				</div>
+				<div class="col-4">
+					<label for="suffix" class="form-label">Suffix</label>
+					<select class="form-select" aria-label="Default select example" name="suffix">
+						{% for domain in available_domains %}
+							<option value="{{domain}}">{{domain}}</option>
+						{% endfor %}
+					</select>
+				</div>
+				<div class="col-12">
+					<div class="form-check">
+						<input type="checkbox" class="form-check-input" id="tos" name="tos" required>
+						<label class="form-check-label" for="tos">Accept Terms of Service</label>
+					</div>
+				</div>
+				<div class="col-12">
+					<button type="submit" class="btn btn-primary">Register Domain!</button>
+				</div>
+			</form>
 		{% endif %}
 	</div>
 </body>

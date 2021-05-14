@@ -1,5 +1,3 @@
-use rusqlite as sqlite;
-use sqlite::params;
 use std::path::PathBuf;
 use chrono::{Utc, DateTime};
 use std::net::{Ipv4Addr, Ipv6Addr};
@@ -8,15 +6,14 @@ use std::sync::{Mutex, Arc};
 use rocksdb;
 use serde::{Serialize, Deserialize};
 use serde_json as json;
+use crate::ffdyndns::Token;
 
 
+#[derive(Clone)]
 pub struct Database {
 	conn: Arc<Mutex<rocksdb::DB>>,
 }
 
-
-// unsafe impl Send for Database {}
-// unsafe impl Sync for Database {}
 
 
 impl Database {
@@ -82,28 +79,32 @@ impl Database {
 			json::to_vec(&d).unwrap()
 		).unwrap();
 	}
+
+	pub fn exists(&self, d: &String) -> bool {
+		self.get_domain(d).is_some()
+	}
 }
 
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Domain {
 	pub domainname: String,
-	pub token: String,
+	pub token: Token,
 	pub lastupdate: Option<DateTime<Utc>>,
 	pub ipv4: Option<Ipv4Addr>,
 	pub ipv6: Option<Ipv6Addr>,
 }
 
 impl Domain {
-	fn from_row(row: &sqlite::Row) -> Self {
-		Self {
-			domainname: row.get("domainname").unwrap(),
-			token: row.get("token").unwrap(),
-			lastupdate: row.get("lastupdate").unwrap(),
-			ipv4: row.get::<_, Option<String>>("ipv4").unwrap().map(|x| x.parse().unwrap()),
-			ipv6: row.get::<_, Option<String>>("ipv6").unwrap().map(|x| x.parse().unwrap()),
-		}
-	}
+	// fn from_row(row: &sqlite::Row) -> Self {
+	// 	Self {
+	// 		domainname: row.get("domainname").unwrap(),
+	// 		token: row.get("token").unwrap(),
+	// 		lastupdate: row.get("lastupdate").unwrap(),
+	// 		ipv4: row.get::<_, Option<String>>("ipv4").unwrap().map(|x| x.parse().unwrap()),
+	// 		ipv6: row.get::<_, Option<String>>("ipv6").unwrap().map(|x| x.parse().unwrap()),
+	// 	}
+	// }
 }
 
 impl Domain {
@@ -121,19 +122,10 @@ impl Domain {
 	pub fn new(domain: String) -> Self {
 		Self {
 			domainname: domain,
-			token: generate_token(),
+			token: crate::ffdyndns::generate_token(),
 			lastupdate: None,
 			ipv4: None,
 			ipv6: None
 		}
 	}
-}
-
-
-pub fn generate_token() -> String {
-	let mut token = String::new();
-	for _ in 0..8 {
-		token.push_str(&format!("{:02x}", rand::random::<u8>()));
-	}
-	token
 }

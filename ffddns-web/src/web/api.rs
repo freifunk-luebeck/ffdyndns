@@ -22,6 +22,7 @@ use tera::Tera;
 use crate::domain::Dname;
 use super::AppState;
 use super::ClientIp;
+use crate::ffdyndns::{UpdateRequest, Error};
 
 
 #[get("/update?<token>&<domain>&<ip>")]
@@ -31,7 +32,8 @@ pub fn update(
 	token: String,
 	domain: Dname,
 	ip: Option<String>,
-) -> String {
+) -> Result<String, Error> {
+	// prefer the ip address from parameters
 	let new_ip: IpAddr = {
 		if let Some(iip) = ip {
 			iip.parse::<IpAddr>().unwrap()
@@ -39,24 +41,12 @@ pub fn update(
 			clientip.into_inner()
 		}
 	};
-	let db = &state.db;
-	let d = db.get_domain(&domain.to_string()).unwrap();
-	info!("{:#?}", d);
 
-	if d.token != token {
-		return "not a valid token".to_string();
-	}
-
-	info!("write new ip to database: {:?}", new_ip);
-	match new_ip {
-		IpAddr::V4(addr) => db.update_ipv4(&"foobar.ffhl.de.".to_string(), addr),
-		IpAddr::V6(addr) => db.update_ipv6(&"foobar.ffhl.de.".to_string(), addr),
-	}
-
-	info!("update timestamp");
-	db.update_lastupdate(&domain.to_string(), Utc::now());
-
-	format!("{} updated to {:?}", domain, new_ip)
+	state.service.update_domain(UpdateRequest {
+		addr: new_ip,
+		token: token,
+		domain: domain.to_string()
+	}).map(|_| "Update successful".to_string())
 }
 
 

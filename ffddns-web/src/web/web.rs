@@ -1,8 +1,10 @@
-use log::{error, info, debug};
-use tera::{self};
-use crate::db::{self, Database, Domain};
 use chrono::DateTime;
 use chrono::Utc;
+use crate::db::{self, Database, Domain};
+use crate::domain::Dname;
+use crate::CONFIG;
+use lazy_static::lazy_static;
+use log::{error, info, debug};
 use rand;
 use rocket;
 use rocket::get;
@@ -18,12 +20,13 @@ use serde_json as json;
 use serde_json::json;
 use std::fmt::{self, Display};
 use std::net::IpAddr;
-use tera::Tera;
-use crate::domain::Dname;
 use super::AppState;
 use super::ClientIp;
+use tera::{self};
+use tera::Tera;
 
-const TEMPLATES: &[(&str, &str)] = &[
+
+const TEMPLATES_INCLUDES: &[(&str, &str)] = &[
 	("index", include_str!("../../templates/index.html")),
 	("nodelist", include_str!("../../templates/nodelist.html")),
 	("head", include_str!("../../templates/head.html")),
@@ -33,51 +36,48 @@ const TEMPLATES: &[(&str, &str)] = &[
 ];
 
 
+// load al templates with lazy_static magic
+lazy_static! {
+	static ref TEMPLATES: Tera = load_templates();
+}
+
 
 #[get("/")]
 pub fn index(state: State<AppState>) -> Html<String> {
-	let html = state
-		.templates
+	let html = TEMPLATES
 		.render("index", &tera::Context::from_serialize(&json!({})).unwrap())
 		.unwrap();
 
 	Html(html)
 }
 
-#[get("/newdomain?<domainname>")]
-pub fn newdomain(state: State<'_, AppState>, domainname: Option<String>) -> Html<String> {
+#[get("/newdomain?<domainname>&<suffix>&<tos>")]
+pub fn newdomain(state: State<'_, AppState>, domainname: Option<String>, suffix: Option<String>, tos: Option<bool>) -> Html<String> {
 	let db = &state.db;
 	let mut template_data: json::Value = json!({});
 
-	match &domainname {
-		Some(name) if db.get_domain(&name).is_some() => {
-			template_data = json!({
-				"form_request": true,
-				"created": false,
-				"error": true,
-				"error_msg": "Domain already exists"
-			})
-		}
-		Some(name) if db.get_domain(&name).is_none() => {
-			let domain = db::Domain::new(name.clone());
-			db.insert_new_domain(&domain);
+	match (&domainname, &suffix, tos) {
+		(Some(name), Some(suffix), Some(tos)) if tos => {
+			let newdomain = format!("{}.{}", name, suffix);
+			let r = state.service.new_domain(&newdomain);
+
 
 			template_data = json!({
 				"form_request": true,
-				"created": true,
-				"error": false,
-				"token": domain.token
+				"error": r.is_err(),
+				"errormsg": r,
+				"token": r
 			});
 		}
-		None | _ => {
+		_ => {
 			template_data = json!({
-				"form_request": false
+				"form_request": false,
+				"available_domains": CONFIG.domain.iter().map(|x| &x.name).collect::<Vec<&String>>()
 			})
 		}
 	}
 
-	let html = state
-		.templates
+	let html = TEMPLATES
 		.render(
 			"newdomain",
 			&tera::Context::from_serialize(&template_data).unwrap(),
@@ -90,10 +90,10 @@ pub fn newdomain(state: State<'_, AppState>, domainname: Option<String>) -> Html
 }
 
 
-pub fn load_templates() -> tera::Tera {
+fn load_templates() -> tera::Tera {
 	let mut t = tera::Tera::default();
 
-	for (name, template) in TEMPLATES {
+	for (name, template) in TEMPLATES_INCLUDES {
 		if let Err(e) = t.add_raw_template(name, template) {
 			error!("failed to load template: {}", name);
 			match &e.kind {

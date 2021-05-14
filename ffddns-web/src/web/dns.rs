@@ -60,12 +60,12 @@ pub struct DnsRecord {
 
 #[get("/lookup/<domain>/SOA")]
 pub fn lookup_soa(
-	state: State<AppState>,
+	// state: State<AppState>,
 	domain: Dname
 ) -> Result<Json<DnsResponse>, NotFound<()>> {
 	info!("SOA {:?}", domain);
 
-	let domain_config = match CONFIG.domain.iter().find(|d| domain.ends_with(&Dname::new(&d.name))) {
+	let domain_config = match CONFIG.domain.iter().find(|d| domain.ends_with(&Dname::new(d.name.clone()))) {
 		Some(r) => r,
 		None => panic!("not found"),
 	};

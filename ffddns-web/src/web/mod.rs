@@ -4,6 +4,7 @@ mod web;
 
 use crate::db::{self, Database, Domain};
 use crate::domain::Dname;
+use crate::ffdyndns;
 use chrono::DateTime;
 use chrono::Utc;
 use log::{debug, error, info};
@@ -26,8 +27,9 @@ use tera::Tera;
 use tera::{self};
 
 pub struct AppState {
-	templates: Tera,
+	// templates: Tera,
 	db: Database,
+	service: ffdyndns::Service,
 }
 
 pub struct ClientIp(IpAddr);
@@ -62,8 +64,8 @@ impl<'a, 'r> FromRequest<'a, 'r> for ClientIp {
 
 pub fn start_web(db: Database) {
 	let appstate = AppState {
-		db: db,
-		templates: web::load_templates(),
+		db: db.clone(),
+		service: ffdyndns::Service::new(db),
 	};
 
 	rocket::custom(

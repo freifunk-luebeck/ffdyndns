@@ -4,6 +4,7 @@ mod config;
 mod db;
 mod domain;
 mod web;
+mod ffdyndns;
 
 use crate::db::Database;
 use crate::db::Domain;
@@ -67,6 +68,19 @@ lazy_static! {
 	};
 }
 
+#[macro_export]
+macro_rules! sha256 {
+	($x:expr) => {{
+		use crypto::digest::Digest;
+		use crypto::sha2::Sha256;
+
+		let mut sum = Sha256::new();
+		sum.input($x);
+		sum.result_str()
+	}};
+}
+
+
 // for p in CONFIG_DIRS.iter().map(|x| path::Path::new(x)) {
 // 	if !p.exists() || !p.is_file() {
 // 		continue;
@@ -90,11 +104,9 @@ pub struct DomainUpdate {
 fn main() {
 	println!("{:?}", CONFIG.domain);
 
-
-	println!("is root: {:#?}", Dname::new(&"foobar.ffhl.de".to_string()).is_absolute());
 	println!(
 		"{:?}",
-		CONFIG.domain.iter().find(|d| Dname::new(&"foobar.ffhl.de.".to_string()).ends_with(&Dname::new(&d.name)))
+		CONFIG.domain.iter().find(|d| Dname::new("foobar.ffhl.de.".to_string()).ends_with(&Dname::new(d.name.clone())))
 	);
 
 
