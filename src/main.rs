@@ -81,20 +81,6 @@ macro_rules! sha256 {
 }
 
 
-// for p in CONFIG_DIRS.iter().map(|x| path::Path::new(x)) {
-// 	if !p.exists() || !p.is_file() {
-// 		continue;
-// 	}
-// 	debug!("loading config: {}", p.to_str().unwrap());
-// 	let mut f = fs::File::open(p).unwrap();
-// 	let mut toml_str = String::new();
-// 	f.read_to_string(&mut toml_str).expect("can't read config file");
-
-// 	config = toml::from_str::<Config>(&toml_str).unwrap()
-// };
-
-// return config;
-
 #[derive(Debug, Clone)]
 pub struct DomainUpdate {
 	domain: String,
@@ -104,6 +90,6 @@ pub struct DomainUpdate {
 fn main() {
 	println!("{:?}", CONFIG.domain);
 
-	let db = db::Database::new("./ffddns.db".into());
+	let db = db::Database::new(CONFIG.database.into());
 	web::start_web(db);
 }

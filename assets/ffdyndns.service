@@ -1,0 +1,10 @@
+[Unit]
+Description=Simple dynamic dns service
+After=network.target pdns.service
+
+[Service]
+ExecStart=/usr/bin/ffdyndns
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target

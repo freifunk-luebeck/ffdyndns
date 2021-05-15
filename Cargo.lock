@@ -414,14 +414,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7360491ce676a36bf9bb3c56c1aa791658183a54d2744120f27285738d90465a"
 
 [[package]]
-name = "ffddns-web"
-version = "0.1.0"
+name = "ffdyndns"
+version = "0.1.1"
 dependencies = [
  "chrono",
  "domain",
  "lazy_static",
  "leveldb",
- "log 0.4.14",
+ "log 0.3.9",
  "rand 0.8.3",
  "rocket",
  "rocket_contrib",

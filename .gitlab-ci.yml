@@ -1,6 +1,10 @@
 image: rustlang/rust:nightly-buster
 
 
+cache:
+  paths:
+    - target
+
 before_script:
   - apt update
   - apt install -y build-essential cmake clang
@@ -14,3 +18,25 @@ build:
 test:
   script:
     - cargo test
+
+
+deb:
+  script:
+    - cargo deb
+  artifacts:
+    paths:
+      - target/deb
+
+
+
+pages:
+  stage: deploy
+  only:
+    - master
+  needs: ["deb", "test"]
+  script:
+    - mkdir -p public
+    - cp -vr target/debian/*.deb public/ffdyndns.deb
+  artifacts:
+    paths:
+      - public

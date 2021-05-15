@@ -9,6 +9,7 @@ pub struct Config {
 	pub server_url: String,
 	pub domain: Vec<Domain>,
 	pub dns: Dns,
+	pub database: String,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

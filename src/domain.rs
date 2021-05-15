@@ -21,7 +21,6 @@ impl Dname {
 		Self {
 			parts
 		}
-
 	}
 
 	pub fn ends_with(&self, other: &Self) -> bool {
