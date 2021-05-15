@@ -2,4 +2,4 @@
 *.sqlite
 *.db
 *.rocks
-ffdyndns.toml
+/ffdyndns.toml

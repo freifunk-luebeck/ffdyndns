@@ -1,0 +1,14 @@
+name = "FFdynDNS"
+description = "DynDNS Service"
+server_url = "dnsservice.example.org:8053"
+database = "/var/lib/ffdyndns/db.rocks"
+
+[dns]
+rname = "paul.example.de"
+master = "ns1.example.org"
+
+[[domain]]
+name = "example.org."
+description = "example domain"
+nets = ["0.0.0.0/0", "::/0"]
+registration_time = 90
