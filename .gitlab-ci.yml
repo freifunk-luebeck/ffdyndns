@@ -29,7 +29,7 @@ test:
 
 
 deb:
-  stage: deploy
+  stage: build
   needs: []
   script:
     - cargo deb
