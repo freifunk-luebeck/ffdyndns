@@ -26,6 +26,8 @@ use std::fmt::{self, Display};
 use std::net::IpAddr;
 use tera::Tera;
 use tera::{self};
+use std::net::SocketAddr;
+use crate::CONFIG;
 
 pub struct AppState {
 	// templates: Tera,
@@ -105,34 +107,45 @@ pub fn start_web(db: Database) {
 		service: ffdyndns::Service::new(db),
 	};
 
-	rocket::custom(
-		rocket::config::ConfigBuilder::new(rocket::config::Environment::Development)
-			.port(8053)
-			// .log_level(rocket::logger::LoggingLevel::Debug)
-			.finalize()
-			.unwrap(),
-	)
-	.mount(
-		"/",
-		routes![
-			web::index,
-			web::newdomain
-		],
-	)
-	.mount(
-		"/dns",
-		routes![
-			dns::lookup_a,
-			dns::lookup_aaaa,
-			dns::lookup_soa,
-			dns::lookup_getalldomainmetadata,
-			dns::lookup_any,
-		],
-	)
-	.mount("/api", routes![
-		api::update,
-		// api::update_rest
-	])
-	.manage(appstate)
-	.launch();
+	let config = rocket_config();
+
+	rocket::custom(config)
+		.mount(
+			"/",
+			routes![
+				web::index,
+				web::newdomain
+			],
+		)
+		.mount(
+			"/dns",
+			routes![
+				dns::lookup_a,
+				dns::lookup_aaaa,
+				dns::lookup_soa,
+				dns::lookup_getalldomainmetadata,
+				dns::lookup_any,
+			],
+		)
+		.mount("/api", routes![
+			api::update,
+			// api::update_rest
+		])
+		.manage(appstate)
+		.launch();
+}
+
+
+#[cfg(debug_assertions)]
+fn rocket_config() -> rocket::Config {
+	rocket::Config::build(rocket::config::Environment::Development).finalize().unwrap()
+}
+
+#[cfg(not(debug_assertions))]
+fn rocket_config() -> rocket::Config {
+	rocket::Config::build(rocket::config::Environment::Production)
+		.address("::")
+		.port(8053)
+		.finalize()
+		.unwrap()
 }

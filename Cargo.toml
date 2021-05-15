@@ -24,8 +24,12 @@ leveldb = "0.8.6"
 rust-crypto = "0.2.36"
 
 
+[profile.release]
+debug = true
+
+
 [package.metadata.deb]
-name = "requestd"
+name = "ffdyndns"
 depends = "pdns-server, pdns-backend-remote"
 build-depends = "build-essential"
 section = "Utilities"
