@@ -1,9 +1,9 @@
-image: rustlang/rust:nightly
+image: rustlang/rust:nightly-buster
 
 
 before_script:
   - apt update
-  - apt install -y build-essential cmake clang-9
+  - apt install -y build-essential cmake clang
 
 
 build:
