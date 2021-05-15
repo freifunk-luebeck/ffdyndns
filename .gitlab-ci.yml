@@ -1,5 +1,9 @@
 image: rustlang/rust:nightly-buster
 
+stages:
+  - build
+  - test
+  - deploy
 
 cache:
   paths:
@@ -11,16 +15,22 @@ before_script:
 
 
 build:
+  stage: build
+  needs: []
   script:
     - cargo build
 
 
 test:
+  stage: test
+  needs: []
   script:
     - cargo test
 
 
 deb:
+  stage: deploy
+  needs: []
   script:
     - cargo deb
   artifacts:
