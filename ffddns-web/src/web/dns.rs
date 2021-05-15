@@ -76,7 +76,7 @@ pub fn lookup_soa(
 	// dns1.icann.org. hostmaster.icann.org. 2012081600 7200 3600 1209600 3600
 	let res = format!(
 		"{}. {}. {} {} {} {} {}",
-		CONFIG.master, CONFIG.rname, 42, DNS_REFRESH, DNS_RETRY, DNS_EXPIRE, DNS_MINIMUM
+		CONFIG.dns.master, CONFIG.dns.rname, 42, DNS_REFRESH, DNS_RETRY, DNS_EXPIRE, DNS_MINIMUM
 	);
 
 	let res = DnsResponse {

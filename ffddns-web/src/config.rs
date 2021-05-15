@@ -4,7 +4,15 @@ use serde;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Config {
+	pub name: String,
+	pub description: String,
+	pub server_url: String,
 	pub domain: Vec<Domain>,
+	pub dns: Dns,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Dns {
 	pub master: String,
 	pub rname: String,
 }
