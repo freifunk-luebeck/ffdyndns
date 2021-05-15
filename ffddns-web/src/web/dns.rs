@@ -93,35 +93,63 @@ pub fn lookup_soa(
 }
 
 #[get("/lookup/<domain>/A")]
-pub fn lookup_a(state: State<AppState>, domain: String) -> Json<DnsResponse> {
+pub fn lookup_a(state: State<AppState>, domain: String) -> Result<Json<DnsResponse>, NotFound<()>> {
 	info!("A {:?}", domain);
-	let res = DnsResponse {
-		result: vec![DnsRecord {
-			qtype: QType::A,
-			qname: "ffhl.de.".to_string(),
-			content: "1.1.1.1".to_string(),
-			ttl: DNS_MINIMUM,
-		}],
+	let db = &state.db;
+
+	let d = match db.get_domain(&domain.to_string()) {
+		Some(r) => r,
+		None => {
+			info!("{:#?} was not found", domain);
+			return Err(NotFound(()));
+		}
 	};
 
+	let mut res = DnsResponse {
+		result: vec![],
+	};
+
+	if let Some(ip) = d.ipv4 {
+		res.result.push(DnsRecord {
+			qtype: QType::A,
+			qname: domain,
+			content: ip.to_string(),
+			ttl: DNS_MINIMUM,
+		})
+	}
+
+
 	info!("{:#?}", res);
-	Json(res)
+	Ok(Json(res))
 }
 
 #[get("/lookup/<domain>/AAAA")]
-pub fn lookup_aaaa(state: State<AppState>, domain: String) -> Json<DnsResponse> {
+pub fn lookup_aaaa(state: State<AppState>, domain: String) -> Result<Json<DnsResponse>, NotFound<()>> {
 	info!("AAAA {:?}", domain);
-	let res = DnsResponse {
-		result: vec![DnsRecord {
-			qtype: QType::A,
-			qname: "ffhl.de.".to_string(),
-			content: "1.1.1.1".to_string(),
-			ttl: DNS_MINIMUM,
-		}],
+	let db = &state.db;
+
+	let d = match db.get_domain(&domain.to_string()) {
+		Some(r) => r,
+		None => {
+			info!("{:#?} was not found", domain);
+			return Err(NotFound(()));
+		}
 	};
 
-	info!("{:#?}", res);
-	Json(res)
+	let mut res = DnsResponse {
+		result: vec![],
+	};
+
+	if let Some(ip) = d.ipv6 {
+		res.result.push(DnsRecord {
+			qtype: QType::AAAA,
+			qname: domain,
+			content: ip.to_string(),
+			ttl: DNS_MINIMUM,
+		})
+	}
+
+	Ok(Json(res))
 }
 
 #[get("/lookup/<domain>/ANY")]

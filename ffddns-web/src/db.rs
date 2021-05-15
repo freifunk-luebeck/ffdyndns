@@ -1,12 +1,14 @@
+use crate::domain::Dname;
 use std::path::PathBuf;
 use chrono::{Utc, DateTime};
 use std::net::{Ipv4Addr, Ipv6Addr};
-use log::{info};
+use log::{info, warn, error};
 use std::sync::{Mutex, Arc};
 use rocksdb;
 use serde::{Serialize, Deserialize};
 use serde_json as json;
 use crate::ffdyndns::Token;
+use crate::sha256;
 
 
 #[derive(Clone)]
@@ -34,14 +36,14 @@ impl Database {
 
 	pub fn insert_new_domain(&self, d: &Domain) {
 		self.conn.lock().unwrap().put(
-			&d.domainname,
+			sha256!(&d.domainname),
 			json::to_vec(&d).unwrap()
 		).unwrap();
 	}
 
 
 	pub fn get_domain(&self, domain: &String) -> Option<Domain> {
-		let r = self.conn.lock().unwrap().get(domain).unwrap();
+		let r = self.conn.lock().unwrap().get(sha256!(domain)).unwrap();
 		r.map(|x| json::from_slice(&x).unwrap())
 	}
 
@@ -55,17 +57,22 @@ impl Database {
 		d.lastupdate = Some(lastupdate);
 
 		self.conn.lock().unwrap().put(
-			domain,
+			sha256!(domain),
 			json::to_vec(&d).unwrap()
 		).unwrap();
 	}
 
 	pub fn update_ipv4(&self, domain: &String, addr: Ipv4Addr) {
+		if !self.exists(domain) {
+			warn!("tried to update nonexistend domain: {}", domain);
+			return
+		}
+
 		let mut d = self.get_domain(domain).unwrap();
 		d.ipv4 = Some(addr);
 
 		self.conn.lock().unwrap().put(
-			domain,
+			sha256!(domain),
 			json::to_vec(&d).unwrap()
 		).unwrap();
 	}
@@ -75,7 +82,7 @@ impl Database {
 		d.ipv6 = Some(addr);
 
 		self.conn.lock().unwrap().put(
-			domain,
+			sha256!(domain),
 			json::to_vec(&d).unwrap()
 		).unwrap();
 	}
@@ -108,9 +115,9 @@ impl Domain {
 }
 
 impl Domain {
-	pub fn new_with_token(domain: String, token: String) -> Self {
+	pub fn new_with_token(domain: Dname, token: String) -> Self {
 		Self {
-			domainname: domain,
+			domainname: domain.to_string(),
 			token: token,
 			lastupdate: None,
 			ipv4: None,

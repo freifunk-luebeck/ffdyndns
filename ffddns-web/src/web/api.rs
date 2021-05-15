@@ -46,7 +46,7 @@ pub fn update(
 		addr: new_ip,
 		token: token,
 		domain: domain.to_string()
-	}).map(|_| "Update successful".to_string())
+	}).map(|_| "Update successful\n".to_string())
 }
 
 

@@ -15,7 +15,11 @@
 				Your token is: <span class="badge bg-light text-dark">{{ token.Ok }}</span>
 			</div>
 			<div>
-				<code>curl http://localhost:8083/api/update?token={{ token.Ok }}&domain=</code>
+				<h2>Set to your current IP:</h2>
+				<code>curl http://localhost:8053/api/update?token={{ token.Ok }}&domain={{ domainname }}</code>
+
+				<h2>Set to a specific IP:</h2>
+				<code>curl http://localhost:8053/api/update?token={{ token.Ok }}&domain={{ domainname }}&ip=1.2.3.4</code>
 			</div>
 		{% endif %}
 

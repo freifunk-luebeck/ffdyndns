@@ -12,9 +12,9 @@ pub struct Dname{
 }
 
 impl Dname {
-	pub fn new(domain: String) -> Self {
+	pub fn new(mut domain: String) -> Self {
 		if !domain.ends_with(".") {
-			panic!("wwhhhaatttttt??????");
+			domain.push_str(".");
 		}
 		let parts = domain.split_inclusive(".").map(|n| n.to_string()).collect();
 
@@ -30,7 +30,6 @@ impl Dname {
 		}
 
 		for (my, others) in other.parts.iter().rev().zip(self.parts.iter().rev()) {
-			println!("comparing {} == {}", my, others);
 			if my != others {
 				return false;
 			}
@@ -79,7 +78,7 @@ impl<'v> FromFormValue<'v> for Dname {
 
 impl fmt::Display for Dname {
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-		write!(f, "{}.", self.parts.join(""))
+		write!(f, "{}", self.parts.join(""))
 	}
 }
 

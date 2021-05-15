@@ -1,10 +1,12 @@
-use crate::Database;
-use std::net::IpAddr;
-use log::{info, error, warn};
-use std::fmt::{self, Display};
 use chrono::Utc;
+use crate::Database;
 use crate::db::Domain;
+use crate::domain::Dname;
+use log::{info, error, warn};
 use serde::{Serialize, Deserialize};
+use std::fmt::{self, Display};
+use std::net::IpAddr;
+use crate::CONFIG;
 
 /// token length in bytes
 /// The hex length will be double the length
@@ -25,6 +27,7 @@ pub enum Error {
 	UpdateError(String),
 	DomainNotFound,
 	InvalidToken,
+	InvalidDomain,
 	DomainExists,
 }
 
@@ -55,6 +58,11 @@ impl Service {
 
 	pub fn update_domain(&self, update: UpdateRequest) -> Result<(), Error> {
 		let db = &self.db;
+
+		if !db.exists(&update.domain) {
+			return Err(Error::DomainNotFound);
+		}
+
 		let d = db.get_domain(&update.domain).unwrap();
 		info!("{:#?}", d);
 
@@ -64,8 +72,8 @@ impl Service {
 
 		info!("write new ip to database: {:?}", update.addr);
 		match update.addr {
-			IpAddr::V4(addr) => db.update_ipv4(&"foobar.ffhl.de.".to_string(), addr),
-			IpAddr::V6(addr) => db.update_ipv6(&"foobar.ffhl.de.".to_string(), addr),
+			IpAddr::V4(addr) => db.update_ipv4(&update.domain, addr),
+			IpAddr::V6(addr) => db.update_ipv6(&update.domain, addr),
 		}
 
 		db.update_lastupdate(&update.domain, Utc::now());
@@ -73,13 +81,22 @@ impl Service {
 		Ok(())
 	}
 
-	pub fn new_domain(&self, d: &String) -> Result<Token, Error> {
-		if self.db.exists(d) {
+	pub fn new_domain(&self, d: Dname) -> Result<Token, Error> {
+
+		let in_config = &CONFIG.domain.iter()
+			.map(|x| Dname::new(x.name.clone()))
+			.fold(false, |acc, x| acc || x.is_subdomain(&d));
+
+		if !in_config {
+			return Err(Error::InvalidDomain);
+		}
+
+		if self.db.exists(&d.to_string()) {
 			return Err(Error::DomainExists);
 		}
 
 		let token = generate_token();
-		let domain = Domain::new_with_token(d.clone(), token.clone());
+		let domain = Domain::new_with_token(d, token.clone());
 		self.db.insert_new_domain(&domain);
 
 		Ok(token)

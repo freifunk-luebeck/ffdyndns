@@ -58,15 +58,15 @@ pub fn newdomain(state: State<'_, AppState>, domainname: Option<String>, suffix:
 
 	match (&domainname, &suffix, tos) {
 		(Some(name), Some(suffix), Some(tos)) if tos => {
-			let newdomain = format!("{}.{}", name, suffix);
-			let r = state.service.new_domain(&newdomain);
-
+			let newdomain: Dname = format!("{}.{}", name, suffix).parse().unwrap();
+			let r = state.service.new_domain(newdomain.clone());
 
 			template_data = json!({
 				"form_request": true,
 				"error": r.is_err(),
 				"errormsg": r,
-				"token": r
+				"token": r,
+				"domainname": newdomain.to_string()
 			});
 		}
 		_ => {

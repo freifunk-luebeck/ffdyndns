@@ -75,7 +75,7 @@ macro_rules! sha256 {
 		use crypto::sha2::Sha256;
 
 		let mut sum = Sha256::new();
-		sum.input($x);
+		sum.input_str($x);
 		sum.result_str()
 	}};
 }
@@ -103,13 +103,6 @@ pub struct DomainUpdate {
 
 fn main() {
 	println!("{:?}", CONFIG.domain);
-
-	println!(
-		"{:?}",
-		CONFIG.domain.iter().find(|d| Dname::new("foobar.ffhl.de.".to_string()).ends_with(&Dname::new(d.name.clone())))
-	);
-
-
 
 	let db = db::Database::new("./ffddns.db".into());
 	web::start_web(db);
