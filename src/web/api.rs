@@ -53,47 +53,48 @@ pub fn update(
 		.map(|_| "Update successful\n".to_string())
 }
 
-//curl -X PUT localhost:1234/api/ffhl.de/foobar/A -d "123.123.123.123" -H '{ "Authorization": "API-KEY"}'
-//curl -X PUT localhost:1234/api/foobar.ffhl.de/A -d "123.123.123.123" -H '{ "Authorization": "API-KEY"}'
-#[put("/<domain>/<record>", data = "<ip>")]
-pub fn update_rest(
-	state: State<AppState>,
-	clientip: ClientIp,
-	domain: Dname,
-	record: QType,
-	ip: Option<String>,
-	token: AuthorizationToken,
-) -> Result<String, Error> {
-	let new_ip: IpAddr = {
-		if let Some(iip) = ip {
-			iip.parse::<IpAddr>().unwrap()
-		} else {
-			clientip.into_inner()
-		}
-	};
 
 
-	let correct_record_type = || {
-		match record {
-			QType::A => new_ip.is_ipv4(),
-			QType::AAAA => new_ip.is_ipv6(),
-			_ => false
-		}
-	};
+//curl -X PUT localhost:1234/api/foobar.ffhl.de/A -d "123.123.123.123" -H 'Authorization: API-KEY}'
+// #[put("/<domain>/<record>", data = "<ip>")]
+// pub fn update_rest(
+// 	state: State<AppState>,
+// 	clientip: ClientIp,
+// 	domain: Dname,
+// 	record: QType,
+// 	ip: Option<String>,
+// 	token: AuthorizationToken,
+// ) -> Result<String, Error> {
+// 	let new_ip: IpAddr = {
+// 		if let Some(iip) = ip {
+// 			iip.parse::<IpAddr>().unwrap()
+// 		} else {
+// 			clientip.into_inner()
+// 		}
+// 	};
 
-	if !correct_record_type() {
-		return Err(Error::RecordTypeNotMatching);
-	}
 
-	state
-		.service
-		.update_domain(UpdateRequest {
-			addr: new_ip,
-			token: token.to_string(),
-			domain: domain.to_string(),
-		})
-		.map(|_| "Update successful\n".to_string())
-}
+// 	let correct_record_type = || {
+// 		match record {
+// 			QType::A => new_ip.is_ipv4(),
+// 			QType::AAAA => new_ip.is_ipv6(),
+// 			_ => false
+// 		}
+// 	};
+
+// 	if !correct_record_type() {
+// 		return Err(Error::RecordTypeNotMatching);
+// 	}
+
+// 	state
+// 		.service
+// 		.update_domain(UpdateRequest {
+// 			addr: new_ip,
+// 			token: token.to_string(),
+// 			domain: domain.to_string(),
+// 		})
+// 		.map(|_| "Update successful\n".to_string())
+// }
 
 #[get("/status?<domain>")]
 fn status(db: State<AppState>, domain: String) -> String {

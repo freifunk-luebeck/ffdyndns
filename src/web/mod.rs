@@ -131,7 +131,7 @@ pub fn start_web(db: Database) {
 	)
 	.mount("/api", routes![
 		api::update,
-		api::update_rest
+		// api::update_rest
 	])
 	.manage(appstate)
 	.launch();
