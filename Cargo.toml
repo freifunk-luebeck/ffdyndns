@@ -1,4 +1,40 @@
-[workspace]
-members = [
-	"ffddns-web"
+[package]
+name = "ffdyndns"
+version = "0.1.1"
+authors = ["Paul Maruhn <paulmaruhn@posteo.de>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rocket = "0.4.7"
+rocket_contrib = "*"
+rusqlite = {version = "0.21", features = ["chrono", "serde_json"]}
+chrono = {version = "0.4.19", features = ["serde"]}
+rand = "0.8.3"
+tera = "1.6.1"
+log = "*"
+serde_json = "1.0.64"
+serde = {version = "1.0.125", features = ["derive"]}
+toml = "0.5.8"
+lazy_static = "1.4.0"
+domain = "0.6.1"
+rocksdb = "0.16.0"
+leveldb = "0.8.6"
+rust-crypto = "0.2.36"
+
+
+[package.metadata.deb]
+name = "requestd"
+depends = "pdns-server, pdns-backend-remote"
+build-depends = "build-essential"
+section = "Utilities"
+conf-files = ["/etc/ffdyndns.toml"]
+maintainer-scripts = "assets/deb-scripts"
+assets = [
+	# binary
+    ["target/release/ffdyndns", "/usr/bin/", "755"],
+	# additional system files
+    ["assets/requestd.service", "/lib/systemd/system/", "664"],
+    ["assets/ffdyndns.toml", "/etc/", "664"],
 ]
