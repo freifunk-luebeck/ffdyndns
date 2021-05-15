@@ -3,7 +3,7 @@ image: rustlang/rust:nightly
 
 before_script:
   - apt update
-  - apt install -y build-essential cmake clang-10
+  - apt install -y build-essential cmake clang-9
 
 
 build:
