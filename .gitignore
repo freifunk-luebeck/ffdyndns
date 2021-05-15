@@ -3,3 +3,4 @@
 *.db
 *.rocks
 /ffdyndns.toml
+/deploy.sh
