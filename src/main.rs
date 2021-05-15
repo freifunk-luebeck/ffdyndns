@@ -90,6 +90,6 @@ pub struct DomainUpdate {
 fn main() {
 	println!("{:?}", CONFIG.domain);
 
-	let db = db::Database::new(CONFIG.database.into());
+	let db = db::Database::new(CONFIG.database.clone().into());
 	web::start_web(db);
 }
