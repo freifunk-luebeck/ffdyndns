@@ -4,26 +4,26 @@
 	{% include "navbar" %}
 	<div class="container">
 		<h1>Create a new Domain</h1>
-		{% if error %}
+		{% if data.error %}
 			<div class="alert alert-danger" role="alert">
-				Error: {{ errormsg.Err }}
+				Error: {{ data.errormsg.Err }}
 			</div>
 		{% endif %}
-		{% if form_request and token.Ok %}
+		{% if data.form_request and data.token.Ok %}
 			<div class="alert alert-success" role="alert">
 				Your domain was successfully created! <br>
-				Your token is: <span class="badge bg-light text-dark">{{ token.Ok }}</span>
+				Your token is: <span class="badge bg-light text-dark">{{ data.token.Ok }}</span>
 			</div>
 			<div>
 				<h2>Set to your current IP:</h2>
-				<code>curl http://localhost:8053/api/update?token={{ token.Ok }}&domain={{ domainname }}</code>
+				<code>curl http://localhost:8053/api/update?token={{ data.token.Ok }}&domain={{ data.domainname }}</code>
 
 				<h2>Set to a specific IP:</h2>
-				<code>curl http://localhost:8053/api/update?token={{ token.Ok }}&domain={{ domainname }}&ip=1.2.3.4</code>
+				<code>curl http://localhost:8053/api/update?token={{ data.token.Ok }}&domain={{ data.domainname }}&ip=1.2.3.4</code>
 			</div>
 		{% endif %}
 
-		{% if not form_request %}
+		{% if not data.form_request %}
 			<form class="row g-3" action="/newdomain" method="GET">
 				<div class="col-8">
 					<label for="domainname" class="form-label">Domain name</label>
@@ -32,8 +32,8 @@
 				<div class="col-4">
 					<label for="suffix" class="form-label">Suffix</label>
 					<select class="form-select" aria-label="Default select example" name="suffix">
-						{% for domain in available_domains %}
-							<option value="{{domain}}">{{domain}}</option>
+						{% for domain in domains %}
+							<option value="{{domain.name}}">{{domain.name}}</option>
 						{% endfor %}
 					</select>
 				</div>

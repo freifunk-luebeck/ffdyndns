@@ -88,6 +88,7 @@ impl Service {
 			.fold(false, |acc, x| acc || x.is_subdomain(&d));
 
 		if !in_config {
+			error!("domain suffix not configured: {}", d.to_string());
 			return Err(Error::InvalidDomain);
 		}
 
