@@ -35,6 +35,6 @@ assets = [
 	# binary
     ["target/release/ffdyndns", "/usr/bin/", "755"],
 	# additional system files
-    ["assets/requestd.service", "/lib/systemd/system/", "664"],
+    ["assets/ffdyndns.service", "/lib/systemd/system/", "664"],
     ["assets/ffdyndns.toml", "/etc/", "664"],
 ]
