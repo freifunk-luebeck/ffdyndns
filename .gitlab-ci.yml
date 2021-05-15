@@ -32,6 +32,7 @@ deb:
   stage: build
   needs: []
   script:
+    - cargo install cargo-deb
     - cargo deb
   artifacts:
     paths:
