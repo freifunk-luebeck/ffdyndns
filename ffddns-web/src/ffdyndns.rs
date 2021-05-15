@@ -15,6 +15,7 @@ const TOKEN_LENGTH: usize = 8;
 
 pub type Token = String;
 
+
 pub struct UpdateRequest {
 	pub domain: String,
 	pub addr: IpAddr,
@@ -29,6 +30,7 @@ pub enum Error {
 	InvalidToken,
 	InvalidDomain,
 	DomainExists,
+	RecordTypeNotMatching,
 }
 
 

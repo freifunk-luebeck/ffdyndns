@@ -13,6 +13,8 @@ use rocket;
 use rocket::get;
 use rocket::post;
 use rocket::request::FromRequest;
+use rocket::http::RawStr;
+use rocket::request::FromParam;
 use rocket::request::Outcome;
 use rocket::request::Request;
 use rocket::response::content;
@@ -56,6 +58,28 @@ pub struct DnsRecord {
 	content: String,
 	// 60
 	ttl: usize,
+}
+
+
+impl FromStr for QType {
+	type Err = String;
+
+	fn from_str(a: &str) -> Result<Self, Self::Err> {
+		match a.to_uppercase().as_str() {
+			"A" => Ok(Self::A),
+			"AAAA" => Ok(Self::AAAA),
+			"SOA" => Ok(Self::SOA),
+			_ => Err("unsupported qtype".to_string()),
+		}
+	}
+}
+
+impl<'r> FromParam<'r> for QType {
+	type Error = String;
+
+	fn from_param(param: &'r RawStr) -> Result<Self, Self::Error> {
+		param.url_decode().unwrap().parse()
+	}
 }
 
 #[get("/lookup/<domain>/SOA")]

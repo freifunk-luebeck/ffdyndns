@@ -14,6 +14,7 @@ use rocket::get;
 use rocket::post;
 use rocket::request::FromRequest;
 use rocket::request::Outcome;
+use rocket::http::Status;
 use rocket::request::Request;
 use rocket::response::content;
 use rocket::response::content::Html;
@@ -62,6 +63,42 @@ impl<'a, 'r> FromRequest<'a, 'r> for ClientIp {
 }
 
 
+
+pub struct AuthorizationToken(String);
+
+impl AuthorizationToken {
+	pub fn inner(&self) -> &String {
+		&self.0
+	}
+
+	pub fn into_inner(self) -> String {
+		self.0
+	}
+}
+
+
+impl Display for AuthorizationToken {
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		write!(f, "{}", self.inner().to_string())
+	}
+}
+
+
+impl<'a, 'r> FromRequest<'a, 'r> for AuthorizationToken {
+	type Error = String;
+
+	fn from_request(request: &'a Request<'r>) -> Outcome<Self, Self::Error> {
+		let header = match request.headers().get_one("Authorization") {
+			None => return Outcome::Failure((Status::raw(401), "Authorization header is missing".to_string())),
+			Some(x) => x.to_string()
+		};
+
+		Outcome::Success(AuthorizationToken(header))
+	}
+}
+
+
+
 pub fn start_web(db: Database) {
 	let appstate = AppState {
 		db: db.clone(),
@@ -93,7 +130,8 @@ pub fn start_web(db: Database) {
 		],
 	)
 	.mount("/api", routes![
-		api::update
+		api::update,
+		api::update_rest
 	])
 	.manage(appstate)
 	.launch();
