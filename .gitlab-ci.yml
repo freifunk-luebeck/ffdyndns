@@ -1,4 +1,5 @@
-image: rustlang/rust:nightly-buster
+image: rust:bullseye
+
 
 stages:
   - build
@@ -14,29 +15,34 @@ before_script:
   - apt install -y build-essential cmake clang
 
 
-build:
+build-nightly:
+  image: rustlang/rust:nightly-buster
   stage: build
   needs: []
+  script:
+    - cargo build
+
+build-stable:
+  stage: build
+  image: rust:bullseye
   script:
     - cargo build
 
 
 test:
   stage: test
-  needs: []
   script:
     - cargo test
 
 
 deb:
   stage: build
-  needs: []
   script:
     - cargo install cargo-deb
     - cargo deb
   artifacts:
     paths:
-      - target/deb
+      - target/debian
 
 
 

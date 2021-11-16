@@ -31,7 +31,6 @@ debug = true
 [package.metadata.deb]
 name = "ffdyndns"
 depends = "pdns-server, pdns-backend-remote"
-build-depends = "build-essential"
 section = "Utilities"
 conf-files = ["/etc/ffdyndns.toml"]
 maintainer-scripts = "assets/deb-scripts"

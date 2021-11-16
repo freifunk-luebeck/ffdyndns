@@ -5,13 +5,14 @@ mod db;
 mod domain;
 mod web;
 mod ffdyndns;
+mod pdns;
 
-use crate::db::Database;
-use crate::db::Domain;
-use crate::domain::Dname;
 use chrono::DateTime;
 use chrono::Utc;
 use config::Config;
+use crate::db::Database;
+use crate::db::Domain;
+use crate::domain::Dname;
 use lazy_static::lazy_static;
 use log::{debug, error, info};
 use rand;
@@ -30,12 +31,16 @@ use std::net::IpAddr;
 use std::path;
 use std::process::exit;
 use toml;
+use std::thread;
+use std::time::Duration;
 
 const CONFIG_DIRS: &[&str] = &[
 	"./ffdyndns.toml",
 	"/etc/ffdyndns.toml",
 	"/var/lib/ffdyndns/ffdyndns.toml",
 ];
+
+const WAIT_PDNS_STARTUP: usize = 750;
 
 lazy_static! {
 	pub static ref CONFIG: Config = {
@@ -46,7 +51,7 @@ lazy_static! {
 
 		match file {
 			Some(f) => {
-				debug!("loading config: {}", f.to_str().unwrap());
+				eprintln!("loading config: {}", f.to_str().unwrap());
 				let mut f = fs::File::open(f).unwrap();
 				let mut toml_str = String::new();
 				f.read_to_string(&mut toml_str)
@@ -88,7 +93,15 @@ pub struct DomainUpdate {
 }
 
 fn main() {
-	println!("{:?}", CONFIG.domain);
+	// println!("{:?}", CONFIG.domain);
+
+	let pdns =  pdns::PdnsProcessBuilder::new().spawn();
+	thread::sleep(Duration::from_millis(WAIT_PDNS_STARTUP as u64));
+
+	if !pdns.is_running() {
+		eprintln!("pdns did not started in time. Check your config");
+		exit(1);
+	}
 
 	let db = db::Database::new(CONFIG.database.clone().into());
 	web::start_web(db);

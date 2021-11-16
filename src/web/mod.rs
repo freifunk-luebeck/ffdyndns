@@ -138,7 +138,11 @@ pub fn start_web(db: Database) {
 
 #[cfg(debug_assertions)]
 fn rocket_config() -> rocket::Config {
-	rocket::Config::build(rocket::config::Environment::Development).finalize().unwrap()
+	rocket::Config::build(rocket::config::Environment::Development)
+		.address("::")
+		.port(8053)
+		.finalize()
+		.unwrap()
 }
 
 #[cfg(not(debug_assertions))]
