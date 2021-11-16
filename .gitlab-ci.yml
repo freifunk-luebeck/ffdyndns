@@ -25,6 +25,7 @@ build-nightly:
 build-stable:
   stage: build
   image: rust:bullseye
+  allow_failure: yes
   script:
     - cargo build
 
