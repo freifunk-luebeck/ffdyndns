@@ -38,6 +38,7 @@ test:
 
 deb:
   stage: build
+  image: rustlang/rust:nightly-buster
   script:
     - cargo install cargo-deb
     - cargo deb
