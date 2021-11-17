@@ -1,4 +1,4 @@
-image: rust:bullseye
+image: rustlang/rust:nightly-buster
 
 
 stages:
@@ -16,7 +16,6 @@ before_script:
 
 
 build-nightly:
-  image: rustlang/rust:nightly-buster
   stage: build
   needs: []
   script:
@@ -38,7 +37,6 @@ test:
 
 deb:
   stage: build
-  image: rustlang/rust:nightly-buster
   script:
     - cargo install cargo-deb
     - cargo deb
