@@ -5,7 +5,7 @@ use crate::DNSTTL;
 
 
 // server 127.0.0.1
-// update delete a.dyn.example.com A
+// update delete a.dyn.example.com
 // update add a.dyn.example.com 60 A 123.23.123.1
 // send
 

@@ -34,6 +34,11 @@ pub enum Error {
 	RecordTypeNotMatching,
 }
 
+impl From<String> for Error {
+	fn from(foo: String) -> Self {
+		Self::UpdateError(foo)
+	}
+}
 
 impl Display for Error {
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -85,7 +90,7 @@ impl Service {
 		nsup.add_command(nsupdate::nsupdate::UpdateCommand::delete(&update.domain));
 		nsup.add_command(nsupdate::nsupdate::UpdateCommand::add(&update.domain, update.addr));
 
-		nsupdate::run_nsupdate(nsup);
+		nsupdate::run_nsupdate(nsup)?;
 
 		Ok(())
 	}
