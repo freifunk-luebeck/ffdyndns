@@ -7,6 +7,7 @@ use serde::{Serialize, Deserialize};
 use std::fmt::{self, Display};
 use std::net::IpAddr;
 use crate::CONFIG;
+use crate::nsupdate;
 
 /// token length in bytes
 /// The hex length will be double the length
@@ -72,13 +73,19 @@ impl Service {
 			return Err(Error::InvalidToken);
 		}
 
-		info!("write new ip to database: {:?}", update.addr);
+		info!("updating ip for {} to {:?}", update.domain, update.addr);
 		match update.addr {
 			IpAddr::V4(addr) => db.update_ipv4(&update.domain, addr),
 			IpAddr::V6(addr) => db.update_ipv6(&update.domain, addr),
 		}
 
 		db.update_lastupdate(&update.domain, Utc::now());
+
+		let mut nsup = nsupdate::nsupdate::UpdateMessage::new();
+		nsup.add_command(nsupdate::nsupdate::UpdateCommand::delete(&update.domain));
+		nsup.add_command(nsupdate::nsupdate::UpdateCommand::add(&update.domain, update.addr));
+
+		nsupdate::run_nsupdate(nsup);
 
 		Ok(())
 	}

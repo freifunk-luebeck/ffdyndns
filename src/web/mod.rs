@@ -1,5 +1,4 @@
 mod api;
-mod dns;
 mod web;
 
 use crate::db::{self, Database, Domain};
@@ -115,16 +114,6 @@ pub fn start_web(db: Database) {
 			routes![
 				web::index,
 				web::newdomain
-			],
-		)
-		.mount(
-			"/dns",
-			routes![
-				dns::lookup_a,
-				dns::lookup_aaaa,
-				dns::lookup_soa,
-				dns::lookup_getalldomainmetadata,
-				dns::lookup_any,
 			],
 		)
 		.mount("/api", routes![

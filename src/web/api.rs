@@ -1,4 +1,3 @@
-use super::dns::QType;
 use super::AppState;
 use super::AuthorizationToken;
 use super::ClientIp;

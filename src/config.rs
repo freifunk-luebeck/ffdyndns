@@ -10,6 +10,7 @@ pub struct Config {
 	pub domain: Vec<Domain>,
 	pub dns: Dns,
 	pub database: String,
+	pub dns_server: String,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -27,7 +28,7 @@ pub struct Domain {
 	pub description: String,
 	/// a list of networks, which a subdomain from this
 	/// domain is allowed to updated to
-	pub nets: Vec<String>,
-	/// duration in days before a subdomain gets 'released' wgen not updated
+	pub allowed_ips: Vec<String>,
+	/// duration in days before a subdomain gets 'released`
 	pub registration_time: usize,
 }

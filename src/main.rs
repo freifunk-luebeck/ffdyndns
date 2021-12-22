@@ -5,7 +5,7 @@ mod db;
 mod domain;
 mod web;
 mod ffdyndns;
-mod pdns;
+mod nsupdate;
 
 use chrono::DateTime;
 use chrono::Utc;
@@ -33,6 +33,7 @@ use std::process::exit;
 use toml;
 use std::thread;
 use std::time::Duration;
+use pretty_env_logger;
 
 const CONFIG_DIRS: &[&str] = &[
 	"./ffdyndns.toml",
@@ -41,6 +42,9 @@ const CONFIG_DIRS: &[&str] = &[
 ];
 
 const WAIT_PDNS_STARTUP: usize = 750;
+pub const DNSTTL: usize = 60;
+pub const NSUPDATE_BIN: &str = "/usr/bin/nsupdate";
+
 
 lazy_static! {
 	pub static ref CONFIG: Config = {
@@ -93,15 +97,8 @@ pub struct DomainUpdate {
 }
 
 fn main() {
+	pretty_env_logger::init();
 	// println!("{:?}", CONFIG.domain);
-
-	let pdns =  pdns::PdnsProcessBuilder::new().spawn();
-	thread::sleep(Duration::from_millis(WAIT_PDNS_STARTUP as u64));
-
-	if !pdns.is_running() {
-		eprintln!("pdns did not started in time. Check your config");
-		exit(1);
-	}
 
 	let db = db::Database::new(CONFIG.database.clone().into());
 	web::start_web(db);
