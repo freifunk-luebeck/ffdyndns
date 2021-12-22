@@ -5,9 +5,26 @@ use std::process::Command;
 use std::process::Stdio;
 use std::io::Write;
 use nsupdate::UpdateMessage;
-use log::{warn, info, debug};
+use log::{error, warn, info, debug};
 use std::io::Read;
 use std::thread;
+use std::sync::mpsc::{self, Sender};
+
+
+pub fn start_nsupdater() -> Sender<UpdateMessage> {
+	let (tx, rx) = mpsc::channel();
+
+	thread::spawn(move || {
+		for req in rx {
+			if let Err(e) = run_nsupdate(req) {
+				error!("nsupdate failed: {}", e);
+			}
+		}
+	});
+
+	tx
+}
+
 
 pub fn run_nsupdate(msg: UpdateMessage) -> Result<(),String>{
 	let mut child = Command::new(NSUPDATE_BIN)

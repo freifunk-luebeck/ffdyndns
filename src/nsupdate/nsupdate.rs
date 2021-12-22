@@ -2,6 +2,7 @@ use std::net::IpAddr;
 use std::string::ToString;
 use crate::CONFIG;
 use crate::DNSTTL;
+use crate::ffdyndns::UpdateRequest;
 
 
 // server 127.0.0.1
@@ -43,6 +44,13 @@ pub struct UpdateMessage {
 impl UpdateMessage {
 	pub fn new() -> Self {
 		Self { commands: Vec::new() }
+	}
+
+	pub fn from_updaterequest(ur: UpdateRequest) -> Self {
+		let mut nsup = Self::new();
+		nsup.add_command(UpdateCommand::delete(&ur.domain));
+		nsup.add_command(UpdateCommand::add(&ur.domain, ur.addr));
+		nsup
 	}
 
 	pub fn add_command(&mut self, cmd: UpdateCommand) {

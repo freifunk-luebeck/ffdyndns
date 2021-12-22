@@ -7,7 +7,9 @@ use serde::{Serialize, Deserialize};
 use std::fmt::{self, Display};
 use std::net::IpAddr;
 use crate::CONFIG;
-use crate::nsupdate;
+use std::sync::mpsc;
+use crate::nsupdate::{self, nsupdate::UpdateMessage};
+use std::sync::{Arc, Mutex};
 
 /// token length in bytes
 /// The hex length will be double the length
@@ -52,15 +54,17 @@ impl Display for Error {
 }
 
 
-
+#[derive(Clone)]
 pub struct Service {
 	db: Database,
+	updater: Arc<Mutex<mpsc::Sender<UpdateMessage>>>,
 }
 
 impl Service {
 	pub fn new(db: Database) -> Self {
 		Self{
-			db
+			db,
+			updater: Arc::new(Mutex::new(nsupdate::start_nsupdater())),
 		}
 	}
 
@@ -86,11 +90,11 @@ impl Service {
 
 		db.update_lastupdate(&update.domain, Utc::now());
 
-		let mut nsup = nsupdate::nsupdate::UpdateMessage::new();
-		nsup.add_command(nsupdate::nsupdate::UpdateCommand::delete(&update.domain));
-		nsup.add_command(nsupdate::nsupdate::UpdateCommand::add(&update.domain, update.addr));
-
-		nsupdate::run_nsupdate(nsup)?;
+		self.updater
+			.lock()
+			.unwrap()
+			.send(UpdateMessage::from_updaterequest(update))
+			.unwrap();
 
 		Ok(())
 	}
