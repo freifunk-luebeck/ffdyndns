@@ -1,7 +1,8 @@
 name = "FFdynDNS"
 description = "DynDNS Service"
 server_url = "dnsservice.example.org:8053"
-database = "/var/lib/ffdyndns/db.rocks"
+database = "/var/lib/ffdyndns"
+dns_server = "127.0.0.1"
 
 [dns]
 rname = "paul.example.de"

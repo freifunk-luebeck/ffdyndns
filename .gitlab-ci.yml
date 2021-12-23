@@ -30,7 +30,7 @@ build-stable:
 
 
 test:
-  stage: test
+  stage: build
   script:
     - cargo test
 
