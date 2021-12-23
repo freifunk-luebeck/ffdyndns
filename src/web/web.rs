@@ -28,9 +28,7 @@ use tera::{self};
 
 const TEMPLATES_INCLUDES: &[(&str, &str)] = &[
 	("index", include_str!("../../templates/index.html")),
-	("nodelist", include_str!("../../templates/nodelist.html")),
 	("head", include_str!("../../templates/head.html")),
-	("node", include_str!("../../templates/node.html")),
 	("navbar", include_str!("../../templates/navbar.html")),
 	("newdomain", include_str!("../../templates/newdomain.html")),
 ];
