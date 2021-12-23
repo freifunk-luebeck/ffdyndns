@@ -24,15 +24,17 @@ use std::fmt::{self, Display};
 use std::net::IpAddr;
 use tera::Tera;
 use tera::{self};
+use rocket::response::{self, content::Plain};
+
 
 #[get("/update?<token>&<domain>&<ip>")]
 pub fn update(
-	state: State<AppState>,
+	state: &State<AppState>,
 	clientip: ClientIp,
 	token: String,
 	domain: Dname,
 	ip: Option<String>,
-) -> Result<String, Error> {
+) -> Result<Plain<String>, Status> {
 	// prefer the ip address from parameters
 	let new_ip: IpAddr = {
 		if let Some(iip) = ip {
@@ -42,14 +44,14 @@ pub fn update(
 		}
 	};
 
-	state
-		.service
+	state.service
 		.update_domain(UpdateRequest {
 			addr: new_ip,
 			token: token,
 			domain: domain.to_string(),
 		})
-		.map(|_| "Update successful\n".to_string())
+		.map(|_| Plain("Update successful\n".to_string()))
+		.map_err(|_| Status::BadRequest)
 }
 
 
@@ -96,7 +98,7 @@ pub fn update(
 // }
 
 #[get("/status?<domain>")]
-fn status(db: State<AppState>, domain: String) -> String {
+fn status(db: &State<AppState>, domain: String) -> String {
 	let domaininfo = match db.db.get_domain(&domain) {
 		None => return "domain not found".to_string(),
 		Some(r) => r,

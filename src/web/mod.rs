@@ -54,10 +54,12 @@ impl Display for ClientIp {
 	}
 }
 
-impl<'a, 'r> FromRequest<'a, 'r> for ClientIp {
+
+#[rocket::async_trait]
+impl<'r> FromRequest<'r> for ClientIp {
 	type Error = String;
 
-	fn from_request(request: &'a Request<'r>) -> Outcome<Self, Self::Error> {
+	async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
 		let ip = request.client_ip().unwrap();
 		Outcome::Success(ClientIp(ip))
 	}
@@ -85,12 +87,13 @@ impl Display for AuthorizationToken {
 }
 
 
-impl<'a, 'r> FromRequest<'a, 'r> for AuthorizationToken {
+#[rocket::async_trait]
+impl<'r> FromRequest<'r> for AuthorizationToken {
 	type Error = String;
 
-	fn from_request(request: &'a Request<'r>) -> Outcome<Self, Self::Error> {
+	async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
 		let header = match request.headers().get_one("Authorization") {
-			None => return Outcome::Failure((Status::raw(401), "Authorization header is missing".to_string())),
+			None => return Outcome::Failure((Status::Unauthorized, "Authorization header is missing".to_string())),
 			Some(x) => x.to_string()
 		};
 
@@ -127,18 +130,14 @@ pub fn start_web(db: Database) {
 
 #[cfg(debug_assertions)]
 fn rocket_config() -> rocket::Config {
-	rocket::Config::build(rocket::config::Environment::Development)
-		.address("::")
-		.port(8053)
-		.finalize()
-		.unwrap()
+	let mut conf = rocket::Config::debug_default();
+	conf.port = 8053;
+	conf
 }
 
 #[cfg(not(debug_assertions))]
 fn rocket_config() -> rocket::Config {
-	rocket::Config::build(rocket::config::Environment::Production)
-		.address("::")
-		.port(8053)
-		.finalize()
-		.unwrap()
+	let mut conf = rocket::Config::release_default();
+	conf.port = 8053;
+	conf
 }

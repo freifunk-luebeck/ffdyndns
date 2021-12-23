@@ -1,9 +1,10 @@
-use domain::base;
 use domain::base::ParsedDname;
 use std::str::FromStr;
-use rocket::request::{FromParam, FromFormValue};
+use rocket::form::Form;
 use rocket::http::RawStr;
 use std::fmt;
+use rocket::request::FromParam;
+use rocket::form::{self, FromFormField, ValueField};
 
 
 #[derive(Clone)]
@@ -60,17 +61,15 @@ impl FromStr for Dname {
 impl<'r> FromParam<'r> for Dname {
 	type Error = &'r RawStr;
 
-	fn from_param(param: &'r RawStr) -> Result<Self, Self::Error> {
-		Ok(Dname::new(param.url_decode().unwrap().to_string()))
+	fn from_param(param: &'r str) -> Result<Self, Self::Error> {
+		Ok(Dname::new(param.to_string()))
 	}
 }
 
 
-impl<'v> FromFormValue<'v> for Dname {
-	type Error = &'v RawStr;
-
-	fn from_form_value(form_value: &'v RawStr) -> Result<Self, &'v RawStr> {
-		Ok(Self::new(form_value.to_string()))
+impl<'v> FromFormField<'v> for Dname {
+	fn from_value(form_value: ValueField) -> form::Result<'v, Self> {
+		Ok(Self::new(form_value.value.to_string()))
 	}
 }
 

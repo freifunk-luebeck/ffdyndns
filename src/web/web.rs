@@ -70,7 +70,7 @@ impl<T> TemplateContext<T> {
 }
 
 #[get("/")]
-pub fn index(state: State<AppState>) -> Html<String> {
+pub fn index(state: &State<AppState>) -> Html<String> {
 	let html = TEMPLATES
 		.render(
 			"index",
@@ -83,7 +83,7 @@ pub fn index(state: State<AppState>) -> Html<String> {
 
 #[get("/newdomain?<domainname>&<suffix>&<tos>")]
 pub fn newdomain(
-	state: State<'_, AppState>,
+	state: &State<AppState>,
 	domainname: Option<String>,
 	suffix: Option<String>,
 	tos: Option<bool>,
