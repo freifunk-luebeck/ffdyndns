@@ -4,3 +4,4 @@
 *.rocks
 /ffdyndns.toml
 /deploy.sh
+nsupdate.txt
