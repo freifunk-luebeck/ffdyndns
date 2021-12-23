@@ -58,7 +58,7 @@ impl<T> TemplateContext<T> {
 		Self {
 			name: CONFIG.name.clone(),
 			description: CONFIG.description.clone(),
-			server_url: CONFIG.server_url.clone(),
+			server_url: CONFIG.server_web_url.clone(),
 			domains: CONFIG
 				.domain
 				.iter()

@@ -1,15 +1,12 @@
 name = "FFdynDNS"
 description = "DynDNS Service"
-server_url = "dnsservice.example.org:8053"
+server_web_url = "dnsservice.example.org:8053"
 database = "/var/lib/ffdyndns"
 dns_server = "127.0.0.1"
 
-[dns]
-rname = "paul.example.de"
-master = "ns1.example.org"
 
 [[domain]]
-name = "example.org."
-description = "example domain"
-nets = ["0.0.0.0/0", "::/0"]
+name = "ffdyn.net."
+description = "freifunk premium"
+allowed_ips = ["0.0.0.0/0", "::/0"]
 registration_time = 90

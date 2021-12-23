@@ -6,17 +6,10 @@ use serde;
 pub struct Config {
 	pub name: String,
 	pub description: String,
-	pub server_url: String,
+	pub server_web_url: String,
 	pub domain: Vec<Domain>,
-	pub dns: Dns,
 	pub database: String,
 	pub dns_server: String,
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Dns {
-	pub master: String,
-	pub rname: String,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
