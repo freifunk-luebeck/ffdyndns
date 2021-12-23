@@ -37,7 +37,7 @@ test:
 
 
 # build debian package
-deb:
+deb-nightly:
   stage: build
   script:
     - cargo install cargo-deb
@@ -52,7 +52,7 @@ pages:
   stage: deploy
   only:
     - master
-  needs: ["deb", "test"]
+  needs: ["deb-nightly"]
   script:
     - mkdir -p public
     - cp -vr target/debian/*.deb public/ffdyndns.deb
