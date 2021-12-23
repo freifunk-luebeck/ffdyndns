@@ -1,37 +1,42 @@
-use super::AppState;
-use super::ClientIp;
-use crate::db::{self, Database, Domain};
-use crate::domain::Dname;
-use crate::CONFIG;
 use chrono::DateTime;
 use chrono::Utc;
+use crate::CONFIG;
+use crate::db::{self, Database, Domain};
+use crate::domain::Dname;
 use lazy_static::lazy_static;
 use log::{debug, error, info};
 use rand;
+use rocket_dyn_templates::Template;
 use rocket;
 use rocket::get;
 use rocket::post;
 use rocket::request::FromRequest;
 use rocket::request::Outcome;
 use rocket::request::Request;
-use rocket::response::content;
-use rocket::response::content::Html;
+use rocket::response::content::{self, Html};
+use std::fs::File;
 use rocket::routes;
 use rocket::State;
-use serde::{Deserialize, Serialize};
 use serde_json as json;
 use serde_json::json;
+use serde::{Deserialize, Serialize};
 use std::fmt::{self, Display};
 use std::net::IpAddr;
-use tera::Tera;
+use std::path::PathBuf;
+use super::AppState;
+use super::ClientIp;
 use tera::{self};
+use tera::Tera;
+
 
 const TEMPLATES_INCLUDES: &[(&str, &str)] = &[
+	("base", include_str!("../../templates/base.html")),
+	("domainlist", include_str!("../../templates/domainlist.html")),
 	("index", include_str!("../../templates/index.html")),
-	("head", include_str!("../../templates/head.html")),
-	("navbar", include_str!("../../templates/navbar.html")),
 	("newdomain", include_str!("../../templates/newdomain.html")),
 ];
+
+
 
 // load al templates with lazy_static magic
 lazy_static! {
@@ -69,17 +74,15 @@ impl<T> TemplateContext<T> {
 	}
 }
 
+
 #[get("/")]
 pub fn index(state: &State<AppState>) -> Html<String> {
-	let html = TEMPLATES
-		.render(
-			"index",
-			&tera::Context::from_serialize(TemplateContext::empty()).unwrap(),
-		)
-		.unwrap();
-
-	Html(html)
+	Html(TEMPLATES.render(
+		"index",
+		&tera::Context::from_serialize(TemplateContext::empty()).unwrap(),
+	).unwrap())
 }
+
 
 #[get("/newdomain?<domainname>&<suffix>&<tos>")]
 pub fn newdomain(
@@ -121,6 +124,8 @@ pub fn newdomain(
 
 	Html(html)
 }
+
+
 
 fn load_templates() -> tera::Tera {
 	let mut t = tera::Tera::default();

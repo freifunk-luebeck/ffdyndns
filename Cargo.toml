@@ -30,10 +30,12 @@ name = "ffdyndns"
 depends = "dnsutils"
 section = "Utilities"
 conf-files = ["/etc/ffdyndns.toml"]
-maintainer-scripts = "assets/deb-scripts"
+maintainer-scripts = "assets/debian"
 assets = [
 	# binary
     ["target/release/ffdyndns", "/usr/bin/", "755"],
+    # templates
+    #["templates", "/usr/lib/ffdyndns/", "644"],
 	# additional system files
     ["assets/ffdyndns.service", "/lib/systemd/system/", "664"],
     ["assets/ffdyndns.toml", "/etc/", "664"],

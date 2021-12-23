@@ -1,4 +1,4 @@
-image: rustlang/rust:nightly-buster
+image: rustlang/rust:nightly-bullseye
 
 
 stages:
@@ -15,26 +15,28 @@ before_script:
   - apt install -y build-essential cmake clang
 
 
+# build stable and nightly with bullseye
 build-nightly:
   stage: build
-  needs: []
   script:
     - cargo build
 
 build-stable:
   stage: build
   image: rust:bullseye
-  allow_failure: yes
+  allow_failure: true
   script:
     - cargo build
 
 
+# test nightly
 test:
   stage: build
   script:
     - cargo test
 
 
+# build debian package
 deb:
   stage: build
   script:

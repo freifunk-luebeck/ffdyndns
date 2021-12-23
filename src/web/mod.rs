@@ -27,6 +27,8 @@ use tera::Tera;
 use tera::{self};
 use std::net::SocketAddr;
 use crate::CONFIG;
+use rocket::fs::FileServer;
+
 
 pub struct AppState {
 	// templates: Tera,
@@ -102,8 +104,7 @@ impl<'r> FromRequest<'r> for AuthorizationToken {
 }
 
 
-
-pub fn start_web(db: Database) {
+pub async fn start_web(db: Database) {
 	let appstate = AppState {
 		db: db.clone(),
 		service: ffdyndns::Service::new(db),
@@ -112,19 +113,17 @@ pub fn start_web(db: Database) {
 	let config = rocket_config();
 
 	rocket::custom(config)
-		.mount(
-			"/",
-			routes![
-				web::index,
-				web::newdomain
-			],
-		)
+		.mount("/", routes![
+			web::index,
+			web::newdomain
+		])
 		.mount("/api", routes![
 			api::update,
 			// api::update_rest
 		])
+		.mount("/static", FileServer::from("./static"))
 		.manage(appstate)
-		.launch();
+		.launch().await.unwrap();
 }
 
 

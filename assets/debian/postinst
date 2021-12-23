@@ -2,3 +2,5 @@
 set -e
 
 mkdir -p "/var/lib/ffdyndns"
+
+systemctl daemon-reload

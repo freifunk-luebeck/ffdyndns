@@ -41,7 +41,7 @@ const CONFIG_DIRS: &[&str] = &[
 	"/var/lib/ffdyndns/ffdyndns.toml",
 ];
 
-const WAIT_PDNS_STARTUP: usize = 750;
+
 pub const DNSTTL: usize = 60;
 pub const NSUPDATE_BIN: &str = "/usr/bin/nsupdate";
 
@@ -96,10 +96,11 @@ pub struct DomainUpdate {
 	ip: IpAddr,
 }
 
-fn main() {
+#[rocket::main]
+async fn main() {
 	pretty_env_logger::init();
 	// println!("{:?}", CONFIG.domain);
 
 	let db = db::Database::new(CONFIG.database.clone().into());
-	web::start_web(db);
+	web::start_web(db).await;
 }

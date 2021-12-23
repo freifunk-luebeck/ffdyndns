@@ -1,15 +1,15 @@
-{% include "head" %}
-<body">
-	{% include "navbar" %}
-	<div class="container">
-		<h1>{{ description }}</h1>
+{% extends 'base' %}
+{% block content %}
 
-		<h2>Available Domains:</h2>
-		<ul class="list-group">
-			{% for domain in domains %}
-			<li class="list-group-item"><strong>{{domain.name}}</strong>: {{domain.description}}</li>
-			{% endfor %}
-		</ul>
+<div class="container">
+	<h1>{{ description }}</h1>
 
-	</div>
-</body>
+	<h2>Available Domains:</h2>
+	<ul class="list-group">
+		{% for domain in domains %}
+		<li class="list-group-item"><strong>{{domain.name}}</strong>: {{domain.description}}</li>
+		{% endfor %}
+	</ul>
+</div>
+
+{% endblock %}

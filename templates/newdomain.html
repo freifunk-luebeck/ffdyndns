@@ -1,52 +1,53 @@
-{% include "head" %}
+{% extends 'base' %}
+{% block content %}
 
-<body>
-	{% include "navbar" %}
-	<div class="container">
-		<h1>Create a new Domain</h1>
-		{% if data.error %}
-			<div class="alert alert-danger" role="alert">
-				Error: {{ data.errormsg.Err }}
-			</div>
-		{% endif %}
-		{% if data.form_request and data.token.Ok %}
-			<div class="alert alert-success" role="alert">
-				Your domain was successfully created! <br>
-				Your token is: <span class="badge bg-light text-dark">{{ data.token.Ok }}</span>
-			</div>
-			<div>
-				<h2>Set to your current IP:</h2>
-				<code>curl http://localhost:8053/api/update?token={{ data.token.Ok }}&domain={{ data.domainname }}</code>
+<h1>Create a new Domain</h1>
 
-				<h2>Set to a specific IP:</h2>
-				<code>curl http://localhost:8053/api/update?token={{ data.token.Ok }}&domain={{ data.domainname }}&ip=1.2.3.4</code>
-			</div>
-		{% endif %}
+{% if data.error %}
+<div class="alert alert-danger" role="alert">
+	Error: {{ data.errormsg.Err }}
+</div>
+{% endif %}
 
-		{% if not data.form_request %}
-			<form class="row g-3" action="/newdomain" method="GET">
-				<div class="col-8">
-					<label for="domainname" class="form-label">Domain name</label>
-					<input type="text" class="form-control" id="domainname" name="domainname" required aria-describedby="domainnameHelp">
-				</div>
-				<div class="col-4">
-					<label for="suffix" class="form-label">Suffix</label>
-					<select class="form-select" aria-label="Default select example" name="suffix">
-						{% for domain in domains %}
-							<option value="{{domain.name}}">{{domain.name}}</option>
-						{% endfor %}
-					</select>
-				</div>
-				<div class="col-12">
-					<div class="form-check">
-						<input type="checkbox" class="form-check-input" id="tos" name="tos" required>
-						<label class="form-check-label" for="tos">Accept Terms of Service</label>
-					</div>
-				</div>
-				<div class="col-12">
-					<button type="submit" class="btn btn-primary">Register Domain!</button>
-				</div>
-			</form>
-		{% endif %}
+{% if data.form_request and data.token.Ok %}
+<div class="alert alert-success" role="alert">
+	Your domain was successfully created! <br>
+	Your token is: <span class="badge bg-light text-dark">{{ data.token.Ok }}</span>
+</div>
+<div>
+	<h2>Set to your current IP:</h2>
+	<code>curl http://localhost:8053/api/update?token={{ data.token.Ok }}&domain={{ data.domainname }}</code>
+
+	<h2>Set to a specific IP:</h2>
+	<code>curl http://localhost:8053/api/update?token={{ data.token.Ok }}&domain={{ data.domainname }}&ip=1.2.3.4</code>
+</div>
+{% endif %}
+
+{% if not data.form_request %}
+<form class="row g-3" action="/newdomain" method="GET">
+	<div class="col-8">
+		<label for="domainname" class="form-label">Domain name</label>
+		<input type="text" class="form-control" id="domainname" name="domainname" required
+			aria-describedby="domainnameHelp">
 	</div>
-</body>
+	<div class="col-4">
+		<label for="suffix" class="form-label">Suffix</label>
+		<select class="form-select" aria-label="Default select example" name="suffix">
+			{% for domain in domains %}
+			<option value="{{domain.name}}">{{domain.name}}</option>
+			{% endfor %}
+		</select>
+	</div>
+	<div class="col-12">
+		<div class="form-check">
+			<input type="checkbox" class="form-check-input" id="tos" name="tos" required>
+			<label class="form-check-label" for="tos">Accept Terms of Service</label>
+		</div>
+	</div>
+	<div class="col-12">
+		<button type="submit" class="btn btn-primary">Register Domain!</button>
+	</div>
+</form>
+{% endif %}
+
+{% endblock %}

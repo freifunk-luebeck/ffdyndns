@@ -1,0 +1,12 @@
+{% extends 'base' %}
+{% block content %}
+
+<h1>{{ description }}</h1>
+    <h2>Available Domains:</h2>
+    <ul class="list-group">
+    {% for domain in domains %}
+        <li class="list-group-item"><strong>{{domain.name}}</strong>: {{domain.description}}</li>
+    {% endfor %}
+</ul>
+
+{% endblock %}
