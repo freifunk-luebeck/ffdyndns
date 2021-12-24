@@ -1,6 +1,5 @@
 image: rustlang/rust:nightly-bullseye
 
-
 stages:
   - build
   - test
@@ -13,18 +12,10 @@ before_script:
 
 
 # build stable and nightly with bullseye
-build-nightly:
+build:
   stage: build
   script:
     - cargo build
-
-build-stable:
-  stage: build
-  image: rust:bullseye
-  allow_failure: true
-  script:
-    - cargo build
-
 
 # test nightly
 test:
@@ -34,7 +25,7 @@ test:
 
 
 # build debian package
-deb-nightly:
+deb-bullseye:
   stage: build
   script:
     - cargo install cargo-deb
@@ -49,7 +40,7 @@ pages:
   stage: deploy
   only:
     - master
-  needs: ["deb-nightly"]
+  needs: ["deb-bullseye", "test"]
   script:
     - mkdir -p public
     - cp -vr target/debian/*.deb public/ffdyndns.deb
