@@ -1,10 +1,14 @@
 pub mod nsupdate;
 
-use crate::NSUPDATE_BIN;
+use crate::{
+	NSUPDATE_BIN,
+	NSUPDATE_TIMEOUT
+};
 use std::process::Command;
 use std::process::Stdio;
 use std::io::Write;
 use nsupdate::UpdateMessage;
+#[allow(unused_imports)]
 use log::{error, warn, info, debug};
 use std::io::Read;
 use std::thread;
@@ -31,6 +35,7 @@ pub fn run_nsupdate(msg: UpdateMessage) -> Result<(),String>{
 		.stdout(Stdio::null())
 		.stdin(Stdio::piped())
 		.stderr(Stdio::piped())
+		.args(["-t", NSUPDATE_TIMEOUT.to_string().as_str()])
 		.spawn()
 		.expect("cannot start pdns_server");
 

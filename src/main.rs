@@ -31,6 +31,7 @@ pub const WEB_TEMPLATES_DIR: &str = "/usr/lib/ffdyndns/templates";
 
 pub const DNSTTL: usize = 60;
 pub const NSUPDATE_BIN: &str = "/usr/bin/nsupdate";
+pub const NSUPDATE_TIMEOUT: u32 = 3;
 
 
 lazy_static! {
