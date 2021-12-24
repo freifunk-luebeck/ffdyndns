@@ -6,9 +6,6 @@ stages:
   - test
   - deploy
 
-cache:
-  paths:
-    - target
 
 before_script:
   - apt update
