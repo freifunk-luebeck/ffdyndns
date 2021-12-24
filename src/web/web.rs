@@ -29,19 +29,6 @@ use tera::{self};
 use tera::Tera;
 
 
-const TEMPLATES_INCLUDES: &[(&str, &str)] = &[
-	("base", include_str!("../../templates/base.html")),
-	("domainlist", include_str!("../../templates/domainlist.html")),
-	("index", include_str!("../../templates/index.html")),
-	("newdomain", include_str!("../../templates/newdomain.html")),
-];
-
-
-
-// load al templates with lazy_static magic
-lazy_static! {
-	static ref TEMPLATES: Tera = load_templates();
-}
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 struct TemplateContext<T> {
@@ -76,11 +63,11 @@ impl<T> TemplateContext<T> {
 
 
 #[get("/")]
-pub fn index(state: &State<AppState>) -> Html<String> {
-	Html(TEMPLATES.render(
+pub fn index(state: &State<AppState>) -> Template {
+	Template::render(
 		"index",
-		&tera::Context::from_serialize(TemplateContext::empty()).unwrap(),
-	).unwrap())
+		TemplateContext::empty()
+	)
 }
 
 
@@ -90,7 +77,7 @@ pub fn newdomain(
 	domainname: Option<String>,
 	suffix: Option<String>,
 	tos: Option<bool>,
-) -> Html<String> {
+) -> Template {
 	let db = &state.db;
 	let mut template_data: json::Value = json!({});
 
@@ -115,31 +102,8 @@ pub fn newdomain(
 		}
 	}
 
-	let html = TEMPLATES
-		.render(
-			"newdomain",
-			&tera::Context::from_serialize(&TemplateContext::new(template_data)).unwrap(),
-		)
-		.unwrap();
-
-	Html(html)
-}
-
-
-
-fn load_templates() -> tera::Tera {
-	let mut t = tera::Tera::default();
-
-	for (name, template) in TEMPLATES_INCLUDES {
-		if let Err(e) = t.add_raw_template(name, template) {
-			error!("failed to load template: {}", name);
-			match &e.kind {
-				tera::ErrorKind::Msg(m) => error!("{}", m),
-				_ => error!("unknown error"),
-			}
-			panic!("loading templates failed: {:#?}", e);
-		}
-	}
-
-	t
+	Template::render(
+		"newdomain",
+		TemplateContext::new(template_data)
+	)
 }

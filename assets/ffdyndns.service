@@ -4,6 +4,7 @@ After=network.target pdns.service
 
 [Service]
 ExecStart=/usr/bin/ffdyndns
+WorkingDirectory=/usr/lib/ffdyndns
 Restart=on-abort
 
 [Install]

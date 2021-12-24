@@ -7,32 +7,17 @@ mod web;
 mod ffdyndns;
 mod nsupdate;
 
-use chrono::DateTime;
-use chrono::Utc;
 use config::Config;
 use crate::db::Database;
-use crate::db::Domain;
-use crate::domain::Dname;
 use lazy_static::lazy_static;
+#[allow(unused_imports)]
 use log::{debug, error, info};
-use rand;
 use rocket;
-use rocket::get;
-use rocket::post;
-use rocket::request::FromRequest;
-use rocket::request::Outcome;
-use rocket::request::Request;
-use rocket::routes;
-use rocket::State;
-use std::fmt::{self, Display};
 use std::fs;
 use std::io::Read;
-use std::net::IpAddr;
 use std::path;
 use std::process::exit;
 use toml;
-use std::thread;
-use std::time::Duration;
 use pretty_env_logger;
 
 const CONFIG_DIRS: &[&str] = &[
@@ -41,6 +26,8 @@ const CONFIG_DIRS: &[&str] = &[
 	"/var/lib/ffdyndns/ffdyndns.toml",
 ];
 
+pub const WEB_STATIC_DIR: &str = "/usr/lib/ffdyndns/static";
+pub const WEB_TEMPLATES_DIR: &str = "/usr/lib/ffdyndns/templates";
 
 pub const DNSTTL: usize = 60;
 pub const NSUPDATE_BIN: &str = "/usr/bin/nsupdate";
@@ -89,12 +76,6 @@ macro_rules! sha256 {
 	}};
 }
 
-
-#[derive(Debug, Clone)]
-pub struct DomainUpdate {
-	domain: String,
-	ip: IpAddr,
-}
 
 #[rocket::main]
 async fn main() {

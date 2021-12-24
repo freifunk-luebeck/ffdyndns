@@ -6,6 +6,7 @@ use crate::domain::Dname;
 use crate::ffdyndns;
 use chrono::DateTime;
 use chrono::Utc;
+#[allow(unused_imports)]
 use log::{debug, error, info};
 use rand;
 use rocket;
@@ -28,6 +29,7 @@ use tera::{self};
 use std::net::SocketAddr;
 use crate::CONFIG;
 use rocket::fs::FileServer;
+use rocket_dyn_templates::{Template, Engines};
 
 
 pub struct AppState {
@@ -123,6 +125,7 @@ pub async fn start_web(db: Database) {
 		])
 		.mount("/static", FileServer::from("./static"))
 		.manage(appstate)
+		.attach(Template::fairing())
 		.launch().await.unwrap();
 }
 

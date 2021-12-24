@@ -2,8 +2,9 @@ use chrono::Utc;
 use crate::Database;
 use crate::db::Domain;
 use crate::domain::Dname;
+#[allow(unused_imports)]
 use log::{info, error, warn};
-use serde::{Serialize, Deserialize};
+use serde::{Serialize};
 use std::fmt::{self, Display};
 use std::net::IpAddr;
 use crate::CONFIG;
@@ -15,9 +16,7 @@ use std::sync::{Arc, Mutex};
 /// The hex length will be double the length
 const TOKEN_LENGTH: usize = 8;
 
-
 pub type Token = String;
-
 
 pub struct UpdateRequest {
 	pub domain: String,
