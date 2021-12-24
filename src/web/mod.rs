@@ -133,13 +133,15 @@ pub async fn start_web(db: Database) {
 #[cfg(debug_assertions)]
 fn rocket_config() -> rocket::Config {
 	let mut conf = rocket::Config::debug_default();
-	conf.port = 8053;
+	conf.port = CONFIG.bind_port as u16;
+	conf.address = CONFIG.bind_address;
 	conf
 }
 
 #[cfg(not(debug_assertions))]
 fn rocket_config() -> rocket::Config {
 	let mut conf = rocket::Config::release_default();
-	conf.port = 8053;
+	conf.port = CONFIG.bind_port as u16;
+	conf.address = CONFIG.bind_address.parse().unwrap();
 	conf
 }

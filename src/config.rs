@@ -1,5 +1,6 @@
 use serde::{Serialize, Deserialize};
 use serde;
+use std::net::IpAddr;
 
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -10,6 +11,8 @@ pub struct Config {
 	pub domain: Vec<Domain>,
 	pub database: String,
 	pub dns_server: String,
+	pub bind_address: IpAddr,
+	pub bind_port: u16,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
