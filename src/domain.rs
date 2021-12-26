@@ -17,11 +17,17 @@ impl Dname {
 		if !domain.ends_with(".") {
 			domain.push_str(".");
 		}
+
 		let parts = domain.split_inclusive(".").map(|n| n.to_string()).collect();
 
 		Self {
 			parts
 		}
+	}
+
+
+	pub fn strip_subdomain(&self) -> String {
+		self.parts[1..].join("")
 	}
 
 	pub fn ends_with(&self, other: &Self) -> bool {
@@ -125,4 +131,14 @@ fn subdomain_test() {
 	assert!(subdomain2.is_subdomain_of(&base));
 	assert!(!not_subdomain1.is_subdomain_of(&base));
 	assert!(!not_subdomain2.is_subdomain_of(&base));
+}
+
+
+#[test]
+fn subdomnain_stripping() {
+	let domain1 = Dname::new("test.ffhl.de.".to_string());
+	let domain2 = Dname::new("foo.bar.ffhl.de.".to_string());
+
+	assert_eq!(domain1.strip_subdomain(), "ffhl.de.");
+	assert_eq!(domain2.strip_subdomain(), "bar.ffhl.de.");
 }

@@ -11,6 +11,7 @@ use crate::CONFIG;
 use std::sync::mpsc;
 use crate::nsupdate::{self, nsupdate::UpdateMessage};
 use std::sync::{Arc, Mutex};
+use chrono::Duration;
 
 /// token length in bytes
 /// The hex length will be double the length
@@ -100,12 +101,8 @@ impl Service {
 
 	pub fn new_domain(&self, d: Dname) -> Result<Token, Error> {
 
-		let in_config = &CONFIG.domain.iter()
-			.map(|x| Dname::new(x.name.clone()))
-			.fold(false, |acc, x| acc || x.is_subdomain(&d));
-
-		if !in_config {
-			error!("domain suffix not configured: {}", d.to_string());
+		if CONFIG.get_domain_config(&d.strip_subdomain()).is_none() {
+			error!("domain suffix not configured: {}", d);
 			return Err(Error::InvalidDomain);
 		}
 
@@ -114,10 +111,26 @@ impl Service {
 		}
 
 		let token = generate_token();
-		let domain = Domain::new_with_token(d, token.clone());
+		let domain = Domain::new_with_token(&d, token.clone(), Duration::days(CONFIG.get_domain_config(&d.strip_subdomain()).unwrap().validity as i64));
 		self.db.insert_new_domain(&domain);
 
 		Ok(token)
+	}
+
+	pub fn clean_domains(&self) {
+		let domains = self.db.get_all();
+
+		for d in domains {
+			if d.valid_until < Utc::now() {
+				self.db.remove_domain(&d.domainname);
+
+				self.updater
+					.lock()
+					.unwrap()
+					.send(UpdateMessage::new_remove_message(d.domainname))
+					.unwrap();
+			}
+		}
 	}
 }
 

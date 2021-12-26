@@ -1,6 +1,6 @@
 use crate::domain::Dname;
 use std::path::PathBuf;
-use chrono::{Utc, DateTime};
+use chrono::{Utc, DateTime, Duration};
 use std::net::{Ipv4Addr, Ipv6Addr};
 use log::{info, warn, error};
 use std::sync::{Mutex, Arc};
@@ -9,6 +9,7 @@ use serde::{Serialize, Deserialize};
 use serde_json as json;
 use crate::ffdyndns::Token;
 use crate::sha256;
+use rocksdb::IteratorMode;
 
 
 #[derive(Clone)]
@@ -47,14 +48,24 @@ impl Database {
 		r.map(|x| json::from_slice(&x).unwrap())
 	}
 
-	pub fn remove_domain(&self, domain: String) {
+	pub fn remove_domain(&self, domain: &String) {
 		self.conn.lock().unwrap().delete(domain).unwrap();
 	}
 
 
 	pub fn update_lastupdate(&self, domain: &String, lastupdate: DateTime<Utc>) {
 		let mut d = self.get_domain(domain).unwrap();
-		d.lastupdate = Some(lastupdate);
+		d.lastupdate = lastupdate;
+
+		self.conn.lock().unwrap().put(
+			sha256!(domain),
+			json::to_vec(&d).unwrap()
+		).unwrap();
+	}
+
+	pub fn update_validity(&self, domain: &String, valid_until: DateTime<Utc>) {
+		let mut d = self.get_domain(domain).unwrap();
+		d.valid_until = valid_until;
 
 		self.conn.lock().unwrap().put(
 			sha256!(domain),
@@ -90,6 +101,17 @@ impl Database {
 	pub fn exists(&self, d: &String) -> bool {
 		self.get_domain(d).is_some()
 	}
+
+	pub fn get_all(&self) -> Vec<Domain> {
+		self.conn
+			.lock()
+			.unwrap()
+			.iterator(IteratorMode::Start)
+			.map(|(_, v)| {
+				json::from_slice(&*v).unwrap()
+			})
+			.collect()
+	}
 }
 
 
@@ -97,7 +119,8 @@ impl Database {
 pub struct Domain {
 	pub domainname: String,
 	pub token: Token,
-	pub lastupdate: Option<DateTime<Utc>>,
+	pub lastupdate: DateTime<Utc>,
+	pub valid_until: DateTime<Utc>,
 	pub ipv4: Option<Ipv4Addr>,
 	pub ipv6: Option<Ipv6Addr>,
 }
@@ -115,22 +138,24 @@ impl Domain {
 }
 
 impl Domain {
-	pub fn new_with_token(domain: Dname, token: String) -> Self {
+	pub fn new_with_token(domain: &Dname, token: String, validity: Duration) -> Self {
 		Self {
 			domainname: domain.to_string(),
 			token: token,
-			lastupdate: None,
+			lastupdate: Utc::now(),
+			valid_until: Utc::now() + validity,
 			ipv4: None,
 			ipv6: None
 		}
 	}
 
 	/// creates a new Domain object and generates a random token
-	pub fn new(domain: String) -> Self {
+	pub fn new(domain: String, validity: Duration) -> Self {
 		Self {
 			domainname: domain,
 			token: crate::ffdyndns::generate_token(),
-			lastupdate: None,
+			lastupdate: Utc::now(),
+			valid_until: Utc::now() + validity,
 			ipv4: None,
 			ipv6: None
 		}

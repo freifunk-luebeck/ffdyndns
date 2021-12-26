@@ -11,7 +11,7 @@ use config::Config;
 use crate::db::Database;
 use lazy_static::lazy_static;
 #[allow(unused_imports)]
-use log::{debug, error, info};
+use log::{debug, error, info, trace};
 use rocket;
 use std::fs;
 use std::io::Read;
