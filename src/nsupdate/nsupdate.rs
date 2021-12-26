@@ -53,6 +53,12 @@ impl UpdateMessage {
 		nsup
 	}
 
+	pub fn new_remove_message(d: String) -> Self{
+		let mut nsup = Self::new();
+		nsup.add_command(UpdateCommand::delete(&d));
+		nsup
+	}
+
 	pub fn add_command(&mut self, cmd: UpdateCommand) {
 		self.commands.push(cmd);
 	}
