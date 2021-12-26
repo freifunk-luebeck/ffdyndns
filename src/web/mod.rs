@@ -29,13 +29,13 @@ use tera::{self};
 use std::net::SocketAddr;
 use crate::CONFIG;
 use rocket::fs::FileServer;
-use rocket_dyn_templates::{Template, Engines};
+use rocket_dyn_templates::{Template};
+
 
 
 pub struct AppState {
-	// templates: Tera,
-	db: Database,
-	service: ffdyndns::Service,
+	// the lifetime of this fields is the entire runtime of the program
+	service: ffdyndns::Service<'static>,
 }
 
 pub struct ClientIp(IpAddr);
@@ -106,9 +106,8 @@ impl<'r> FromRequest<'r> for AuthorizationToken {
 }
 
 
-pub async fn start_web(db: Database) {
+pub async fn start_web(db: &'static dyn Database) {
 	let appstate = AppState {
-		db: db.clone(),
 		service: ffdyndns::Service::new(db),
 	};
 

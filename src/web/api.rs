@@ -98,11 +98,13 @@ pub fn update(
 // }
 
 #[get("/status?<domain>")]
-fn status(db: &State<AppState>, domain: String) -> String {
-	let domaininfo = match db.db.get_domain(&domain) {
-		None => return "domain not found".to_string(),
-		Some(r) => r,
-	};
+fn status(state: &State<AppState>, domain: String) -> String {
+	unimplemented!();
 
-	format!("{:#?}", domaininfo)
+	// let domaininfo = match state.service.get_domain(&domain) {
+	// 	None => return "domain not found".to_string(),
+	// 	Some(r) => r,
+	// };
+
+	// format!("{:#?}", domaininfo)
 }

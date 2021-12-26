@@ -62,7 +62,7 @@ pub struct Service<'d> {
 }
 
 impl<'d> Service<'d> {
-	pub fn new<T: Database>(db: &'d dyn Database) -> Self {
+	pub fn new(db: &'d dyn Database) -> Self {
 		Self{
 			db: db,
 			updater: Arc::new(Mutex::new(nsupdate::start_nsupdater())),

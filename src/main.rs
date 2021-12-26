@@ -84,6 +84,6 @@ async fn main() {
 	pretty_env_logger::init();
 	// println!("{:?}", CONFIG.domain);
 
-	// let db = db::Database::new(CONFIG.database.clone().into());
-	// web::start_web(db).await;
+	let db = db::redis::Redisdb::new(&CONFIG.database.into()).unwrap();
+	web::start_web(&db).await;
 }

@@ -8,27 +8,21 @@ use serde::{Serialize, Deserialize};
 use serde_json as json;
 use crate::ffdyndns::Token;
 use crate::sha256;
+
 pub mod rocksdb;
 pub mod redis;
 
 
 /// a database abstraction
-pub trait Database {
+pub trait Database: Sync {
 	fn get(&self, key: String) -> Option<Vec<u8>>;
 
 	fn set(&self, key: String, val: Vec<u8>) -> Result<(),()>;
 
 	fn delete(&self, key: String);
 
-	// pub fn get_all_domains(&self) -> Vec<Domain> {
-	// 	let db = self.conn.lock().unwrap();
-	// 	let mut stmt: sqlite::Statement = db.prepare("SELECT * FROM domains").unwrap();
 
-	// 	stmt.query_map(
-	// 		params![],
-	// 		|row| Ok(Domain::from_row(row))
-	// 	).unwrap().map(|x| x.unwrap()).collect()
-	// }
+	// the following methods are provided if the above are implemented
 
 	fn insert_new_domain(&self, d: &Domain) {
 		self.set(
