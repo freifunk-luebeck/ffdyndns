@@ -6,7 +6,7 @@ mod domain;
 mod web;
 mod ffdyndns;
 mod nsupdate;
-mod redis;
+mod db2;
 
 use config::Config;
 use crate::db::Database;
@@ -83,11 +83,7 @@ macro_rules! sha256 {
 async fn main() {
 	pretty_env_logger::init();
 	// println!("{:?}", CONFIG.domain);
-    let mut db: redis::Database = redis::Database::new(CONFIG.database.clone().into()).unwrap();
-	let mut d: db::Domain = db::Domain::new(String::from("kaputt.cloud"));
-	db.insert_new_domain(&mut d);
-	// let res = db.get_domain(&String::from("kaputt.cloud"));
-	// info!("[redis]: {:#?}", res);
+
 	// let db = db::Database::new(CONFIG.database.clone().into());
 	// web::start_web(db).await;
 }
