@@ -1,3 +1,5 @@
+export RUST_LOG=debug
+
 build:
 	cargo build
 
