@@ -8,7 +8,6 @@ use serde::{Serialize, Deserialize};
 use serde_json as json;
 use crate::ffdyndns::Token;
 use crate::sha256;
-use rocksdb::IteratorMode;
 
 pub mod rocksdb;
 pub mod redis;
@@ -21,6 +20,8 @@ pub trait Database: Sync {
 	fn set(&self, key: String, val: Vec<u8>) -> Result<(),()>;
 
 	fn delete(&self, key: String);
+
+	fn list(&self) -> &mut dyn Iterator<Item = Vec<u8>>;
 
 
 	// the following methods are provided if the above are implemented
@@ -47,13 +48,13 @@ pub trait Database: Sync {
 		let mut d = self.get_domain(domain).unwrap();
 		d.lastupdate = lastupdate;
 
-		self.conn.lock().unwrap().put(
+		self.set(
 			sha256!(domain),
 			json::to_vec(&d).unwrap()
 		).unwrap();
 	}
 
-	pub fn update_validity(&self, domain: &String, valid_until: DateTime<Utc>) {
+	fn update_validity(&self, domain: &String, valid_until: DateTime<Utc>) {
 		let mut d = self.get_domain(domain).unwrap();
 		d.valid_until = valid_until;
 
@@ -92,15 +93,11 @@ pub trait Database: Sync {
 		self.get_domain(d).is_some()
 	}
 
-	pub fn get_all(&self) -> Vec<Domain> {
-		self.conn
-			.lock()
-			.unwrap()
-			.iterator(IteratorMode::Start)
-			.map(|(_, v)| {
-				json::from_slice(&*v).unwrap()
-			})
-			.collect()
+	fn get_all(&self) -> Vec<Domain> {
+		self.list().map(|v| {
+			json::from_slice(&*v).unwrap()
+		})
+		.collect()
 	}
 }
 

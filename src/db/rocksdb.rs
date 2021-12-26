@@ -10,6 +10,8 @@ use std::net::{Ipv4Addr, Ipv6Addr};
 use std::path::PathBuf;
 use std::sync::{Mutex, Arc};
 use super::Database;
+use rocksdb::IteratorMode;
+
 
 
 #[derive(Clone)]
@@ -41,5 +43,11 @@ impl Database for Rocksdb {
         self.conn.lock().unwrap().delete(key.as_bytes());
     }
 
+    fn list(&self) -> &mut dyn Iterator<Item = Vec<u8>> {
+        &mut self.conn.lock().unwrap().iterator(IteratorMode::Start)
+            .map(|(_, v)| {
+                v.to_vec()
+            })
+    }
 
 }
