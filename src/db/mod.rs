@@ -9,7 +9,7 @@ use serde_json as json;
 use crate::ffdyndns::Token;
 use crate::sha256;
 
-pub mod rocksdb;
+pub mod sled;
 pub mod redis;
 
 
