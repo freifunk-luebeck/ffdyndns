@@ -53,16 +53,18 @@ impl Display for Error {
 }
 
 
+/// the actual service
+/// 'd is the lifetime of the database trait object
 #[derive(Clone)]
-pub struct Service {
-	db: Database,
+pub struct Service<'d> {
+	db: &'d dyn Database,
 	updater: Arc<Mutex<mpsc::Sender<UpdateMessage>>>,
 }
 
-impl Service {
-	pub fn new(db: Database) -> Self {
+impl<'d> Service<'d> {
+	pub fn new<T: Database>(db: &'d dyn Database) -> Self {
 		Self{
-			db,
+			db: db,
 			updater: Arc::new(Mutex::new(nsupdate::start_nsupdater())),
 		}
 	}

@@ -4,25 +4,21 @@ use chrono::{Utc, DateTime};
 use std::net::{Ipv4Addr, Ipv6Addr};
 use log::{info, warn, error};
 use std::sync::{Mutex, Arc};
-use rocksdb;
 use serde::{Serialize, Deserialize};
 use serde_json as json;
 use crate::ffdyndns::Token;
 use crate::sha256;
+pub mod rocksdb;
+pub mod redis;
 
 
-#[derive(Clone)]
-pub struct Database {
-	conn: Arc<Mutex<rocksdb::DB>>,
-}
+/// a database abstraction
+pub trait Database {
+	fn get(&self, key: String) -> Option<Vec<u8>>;
 
+	fn set(&self, key: String, val: Vec<u8>) -> Result<(),()>;
 
-
-impl Database {
-	pub fn new(path: PathBuf) -> Self {
-		let conn = rocksdb::DB::open_default(path).unwrap();
-		Database { conn: Arc::new(Mutex::new(conn)) }
-	}
+	fn delete(&self, key: String);
 
 	// pub fn get_all_domains(&self) -> Vec<Domain> {
 	// 	let db = self.conn.lock().unwrap();
@@ -34,35 +30,35 @@ impl Database {
 	// 	).unwrap().map(|x| x.unwrap()).collect()
 	// }
 
-	pub fn insert_new_domain(&self, d: &Domain) {
-		self.conn.lock().unwrap().put(
+	fn insert_new_domain(&self, d: &Domain) {
+		self.set(
 			sha256!(&d.domainname),
 			json::to_vec(&d).unwrap()
 		).unwrap();
 	}
 
 
-	pub fn get_domain(&self, domain: &String) -> Option<Domain> {
-		let r = self.conn.lock().unwrap().get(sha256!(domain)).unwrap();
+	fn get_domain(&self, domain: &String) -> Option<Domain> {
+		let r = self.get(sha256!(domain));
 		r.map(|x| json::from_slice(&x).unwrap())
 	}
 
-	pub fn remove_domain(&self, domain: String) {
-		self.conn.lock().unwrap().delete(domain).unwrap();
+	fn remove_domain(&self, domain: &String) {
+		self.delete(sha256!(domain));
 	}
 
 
-	pub fn update_lastupdate(&self, domain: &String, lastupdate: DateTime<Utc>) {
+	fn update_lastupdate(&self, domain: &String, lastupdate: DateTime<Utc>) {
 		let mut d = self.get_domain(domain).unwrap();
 		d.lastupdate = Some(lastupdate);
 
-		self.conn.lock().unwrap().put(
+		self.set(
 			sha256!(domain),
 			json::to_vec(&d).unwrap()
 		).unwrap();
 	}
 
-	pub fn update_ipv4(&self, domain: &String, addr: Ipv4Addr) {
+	fn update_ipv4(&self, domain: &String, addr: Ipv4Addr) {
 		if !self.exists(domain) {
 			warn!("tried to update nonexistend domain: {}", domain);
 			return
@@ -71,23 +67,23 @@ impl Database {
 		let mut d = self.get_domain(domain).unwrap();
 		d.ipv4 = Some(addr);
 
-		self.conn.lock().unwrap().put(
+		self.set(
 			sha256!(domain),
 			json::to_vec(&d).unwrap()
 		).unwrap();
 	}
 
-	pub fn update_ipv6(&self, domain: &String, addr: Ipv6Addr) {
+	fn update_ipv6(&self, domain: &String, addr: Ipv6Addr) {
 		let mut d = self.get_domain(domain).unwrap();
 		d.ipv6 = Some(addr);
 
-		self.conn.lock().unwrap().put(
+		self.set(
 			sha256!(domain),
 			json::to_vec(&d).unwrap()
 		).unwrap();
 	}
 
-	pub fn exists(&self, d: &String) -> bool {
+	fn exists(&self, d: &String) -> bool {
 		self.get_domain(d).is_some()
 	}
 }
