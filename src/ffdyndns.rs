@@ -111,7 +111,7 @@ impl Service {
 		}
 
 		let token = generate_token();
-		let domain = Domain::new_with_token(&d, token.clone(), Duration::days(CONFIG.get_domain_config(&d.strip_subdomain()).unwrap().validity as i64));
+		let domain = Domain::new_with_token(&d, token.clone(), CONFIG.get_domain_config(&d.strip_subdomain()).unwrap().validity);
 		self.db.insert_new_domain(&domain);
 
 		Ok(token)
