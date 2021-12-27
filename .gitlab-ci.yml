@@ -6,11 +6,6 @@ stages:
   - deploy
 
 
-before_script:
-  - apt update
-  - apt install -y build-essential cmake clang
-
-
 # build stable and nightly with bullseye
 build:
   stage: build
