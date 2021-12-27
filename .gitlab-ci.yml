@@ -14,12 +14,18 @@ before_script:
 # build stable and nightly with bullseye
 build:
   stage: build
+  cache:
+    paths:
+      - target/debug
   script:
     - cargo build
 
 # test nightly
 test:
   stage: build
+  cache:
+    paths:
+      - target/debug
   script:
     - cargo test
 
@@ -27,6 +33,9 @@ test:
 # build debian package
 deb-bullseye:
   stage: build
+  cache:
+    paths:
+      - target/release
   script:
     - cargo install cargo-deb
     - cargo deb
