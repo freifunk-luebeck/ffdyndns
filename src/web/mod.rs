@@ -142,6 +142,6 @@ fn rocket_config() -> rocket::Config {
 fn rocket_config() -> rocket::Config {
 	let mut conf = rocket::Config::release_default();
 	conf.port = CONFIG.bind_port as u16;
-	conf.address = CONFIG.bind_address.parse().unwrap();
+	conf.address = CONFIG.bind_address;
 	conf
 }
