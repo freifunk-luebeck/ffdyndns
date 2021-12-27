@@ -2,41 +2,56 @@ use crate::domain::Dname;
 use std::path::PathBuf;
 use chrono::{Utc, DateTime, Duration};
 use std::net::{Ipv4Addr, Ipv6Addr};
+#[allow(unused_imports)]
 use log::{info, warn, error};
 use std::sync::{Mutex, Arc};
-use rocksdb;
 use serde::{Serialize, Deserialize};
 use serde_json as json;
 use crate::ffdyndns::Token;
 use crate::sha256;
-use rocksdb::IteratorMode;
 
 
 #[derive(Clone)]
 pub struct Database {
-	conn: Arc<Mutex<rocksdb::DB>>,
+	conn: Arc<Mutex<sled::Db>>,
 }
 
 
 
 impl Database {
 	pub fn new(path: PathBuf) -> Self {
-		let conn = rocksdb::DB::open_default(path).unwrap();
-		Database { conn: Arc::new(Mutex::new(conn)) }
+		let conn = sled::open(path).unwrap();
+		Self { conn: Arc::new(Mutex::new(conn)) }
 	}
 
-	// pub fn get_all_domains(&self) -> Vec<Domain> {
-	// 	let db = self.conn.lock().unwrap();
-	// 	let mut stmt: sqlite::Statement = db.prepare("SELECT * FROM domains").unwrap();
+	// basic CRUD methods
+	fn set(&self, key: String, val: Vec<u8>) -> Result<(),()> {
+        self.conn.lock().unwrap().insert(
+            key.as_bytes(),
+            val
+        ).map_err(|_| ()).map(|_| ())
+    }
 
-	// 	stmt.query_map(
-	// 		params![],
-	// 		|row| Ok(Domain::from_row(row))
-	// 	).unwrap().map(|x| x.unwrap()).collect()
-	// }
+    fn get(&self, key: String) -> Option<Vec<u8>> {
+        self.conn.lock().unwrap().get(key.as_bytes()).unwrap().map(|x| x.as_ref().to_vec())
+    }
+
+	fn delete(&self, key: String) {
+        self.conn.lock().unwrap().remove(key);
+    }
+
+    fn list(&self) -> Vec<Vec<u8>> {
+        self.conn.lock().unwrap()
+			.iter()
+            .map(|r| {
+                r.unwrap().1.as_ref().to_vec()
+            }).collect()
+    }
+
+
 
 	pub fn insert_new_domain(&self, d: &Domain) {
-		self.conn.lock().unwrap().put(
+		self.set(
 			sha256!(&d.domainname),
 			json::to_vec(&d).unwrap()
 		).unwrap();
@@ -44,12 +59,12 @@ impl Database {
 
 
 	pub fn get_domain(&self, domain: &String) -> Option<Domain> {
-		let r = self.conn.lock().unwrap().get(sha256!(domain)).unwrap();
+		let r = self.get(sha256!(domain));
 		r.map(|x| json::from_slice(&x).unwrap())
 	}
 
 	pub fn remove_domain(&self, domain: &String) {
-		self.conn.lock().unwrap().delete(domain).unwrap();
+		self.delete(sha256!(domain));
 	}
 
 
@@ -57,7 +72,7 @@ impl Database {
 		let mut d = self.get_domain(domain).unwrap();
 		d.lastupdate = lastupdate;
 
-		self.conn.lock().unwrap().put(
+		self.set(
 			sha256!(domain),
 			json::to_vec(&d).unwrap()
 		).unwrap();
@@ -67,7 +82,7 @@ impl Database {
 		let mut d = self.get_domain(domain).unwrap();
 		d.valid_until = valid_until;
 
-		self.conn.lock().unwrap().put(
+		self.set(
 			sha256!(domain),
 			json::to_vec(&d).unwrap()
 		).unwrap();
@@ -82,7 +97,7 @@ impl Database {
 		let mut d = self.get_domain(domain).unwrap();
 		d.ipv4 = Some(addr);
 
-		self.conn.lock().unwrap().put(
+		self.set(
 			sha256!(domain),
 			json::to_vec(&d).unwrap()
 		).unwrap();
@@ -92,7 +107,7 @@ impl Database {
 		let mut d = self.get_domain(domain).unwrap();
 		d.ipv6 = Some(addr);
 
-		self.conn.lock().unwrap().put(
+		self.set(
 			sha256!(domain),
 			json::to_vec(&d).unwrap()
 		).unwrap();
@@ -103,14 +118,10 @@ impl Database {
 	}
 
 	pub fn get_all(&self) -> Vec<Domain> {
-		self.conn
-			.lock()
-			.unwrap()
-			.iterator(IteratorMode::Start)
-			.map(|(_, v)| {
-				json::from_slice(&*v).unwrap()
-			})
-			.collect()
+		self.list().iter().map(|v| {
+			json::from_slice(&*v).unwrap()
+		})
+		.collect()
 	}
 }
 
