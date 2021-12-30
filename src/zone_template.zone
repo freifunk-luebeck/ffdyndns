@@ -1,0 +1,11 @@
+$ORIGIN .
+$TTL 30 ; 30 seconds
+dyn.example.com IN SOA  ns.example.com. paul.ffhl.de. (
+                                2016062807 ; serial
+                                3600       ; refresh (1 hour)
+                                600        ; retry (10 minutes)
+                                2600       ; expire (43 minutes 20 seconds)
+                                30         ; minimum (30 seconds)
+                                )
+                        NS      ns1.ffhl.de.
+                        NS      ns2.ffhl.de.

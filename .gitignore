@@ -5,3 +5,4 @@
 /ffdyndns.toml
 /deploy.sh
 nsupdate.txt
+*.zone

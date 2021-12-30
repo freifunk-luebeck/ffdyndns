@@ -26,6 +26,8 @@ domain = "0.6.1"
 sled = "0.34.7"
 rust-crypto = "0.2.36"
 pretty_env_logger = "0.4.0"
+clap = "2.34.0"
+tokio = { version = "1.15.0", features = ["full"] }
 
 [profile.release]
 debug = true
