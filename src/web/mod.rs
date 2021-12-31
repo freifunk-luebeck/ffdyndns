@@ -48,7 +48,10 @@ impl<'r> FromRequest<'r> for ClientIp {
 	type Error = String;
 
 	async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
-		let ip = request.client_ip().unwrap();
+		let ip = request.headers().get("X-Forwarded-For").next()
+			.map(|x| x.parse().unwrap())
+			.unwrap_or(request.client_ip().unwrap());
+
 		Outcome::Success(ClientIp(ip))
 	}
 }
