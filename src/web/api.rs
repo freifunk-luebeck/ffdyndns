@@ -97,9 +97,10 @@ pub fn update(
 // 		.map(|_| "Update successful\n".to_string())
 // }
 
+#[allow(dead_code)]
 #[get("/status?<domain>")]
-fn status(db: &State<AppState>, domain: String) -> String {
-	let domaininfo = match db.db.get_domain(&domain) {
+fn status(state: &State<AppState>, domain: String) -> String {
+	let domaininfo = match state.service.get_domain(&domain) {
 		None => return "domain not found".to_string(),
 		Some(r) => r,
 	};

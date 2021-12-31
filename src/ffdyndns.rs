@@ -3,7 +3,7 @@ use crate::Database;
 use crate::db::Domain;
 use crate::domain::Dname;
 #[allow(unused_imports)]
-use log::{info, error, warn};
+use log::{error, warn, info, debug, trace};
 use serde::{Serialize};
 use std::fmt::{self, Display};
 use std::net::IpAddr;
@@ -90,6 +90,8 @@ impl Service {
 
 		db.update_lastupdate(&update.domain, Utc::now());
 
+		info!("updating domain: {}", update.domain);
+
 		self.updater
 			.lock()
 			.unwrap()
@@ -117,11 +119,18 @@ impl Service {
 		Ok(token)
 	}
 
+	pub fn get_domain(&self, domain: &String) -> Option<Domain> {
+		self.db.get_domain(domain)
+	}
+
+
 	pub fn clean_domains(&self) {
+		trace!("start domain cleanup");
 		let domains = self.db.get_all();
 
 		for d in domains {
 			if d.valid_until < Utc::now() {
+				debug!("removing domain: {}", d.domainname);
 				self.db.remove_domain(&d.domainname);
 
 				self.updater

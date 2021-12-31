@@ -78,7 +78,6 @@ pub fn newdomain(
 	suffix: Option<String>,
 	tos: Option<bool>,
 ) -> Template {
-	let db = &state.db;
 	let mut template_data: json::Value = json!({});
 
 	match (&domainname, &suffix, tos) {

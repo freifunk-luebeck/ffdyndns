@@ -7,22 +7,23 @@ mod web;
 mod ffdyndns;
 mod nsupdate;
 
+#[allow(unused_imports)]
+use log::{debug, error, info, trace};
+use clap::{self, App, Arg, ArgMatches};
 use config::Config;
 use crate::db::Database;
 use lazy_static::lazy_static;
-#[allow(unused_imports)]
-use log::{debug, error, info, trace};
+use pretty_env_logger;
 use rocket::launch;
 use std::fs;
 use std::io::{Read, Write};
 use std::path;
-use std::process::exit;
-use toml;
-use pretty_env_logger;
-use clap::{self, App, Arg, ArgMatches};
-use std::time;
 use std::process;
+use std::process::exit;
+use std::thread;
+use std::time;
 use tokio;
+use toml;
 
 const CONFIG_DIRS: &[&str] = &[
 	"./ffdyndns.toml",
@@ -36,6 +37,7 @@ pub const WEB_TEMPLATES_DIR: &str = "/usr/lib/ffdyndns/templates";
 pub const DNSTTL: usize = 60;
 pub const NSUPDATE_BIN: &str = "/usr/bin/nsupdate";
 pub const NSUPDATE_TIMEOUT: u32 = 3;
+pub const CLEAN_INTERVAL: u64 = 30;
 
 
 lazy_static! {
@@ -153,5 +155,17 @@ pub fn cmd_server(_: &ArgMatches<'_>) {
 	let rt = tokio::runtime::Runtime::new().unwrap();
 	let db = db::Database::new(CONFIG.database.clone().into());
 
-	rt.block_on(web::start_web(db));
+	let app = ffdyndns::Service::new(db);
+
+	let app_cleaner = app.clone();
+
+	// start cleaning thread
+	std::thread::spawn(move || {
+		loop {
+			thread::sleep(time::Duration::from_secs(CLEAN_INTERVAL));
+			app_cleaner.clean_domains();
+		}
+	});
+
+	rt.block_on(web::start_web(app));
 }

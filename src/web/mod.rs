@@ -34,7 +34,6 @@ use rocket_dyn_templates::{Template, Engines};
 
 pub struct AppState {
 	// templates: Tera,
-	db: Database,
 	service: ffdyndns::Service,
 }
 
@@ -106,10 +105,9 @@ impl<'r> FromRequest<'r> for AuthorizationToken {
 }
 
 
-pub async fn start_web(db: Database) {
+pub async fn start_web(app: ffdyndns::Service) {
 	let appstate = AppState {
-		db: db.clone(),
-		service: ffdyndns::Service::new(db),
+		service: app,
 	};
 
 	let config = rocket_config();
