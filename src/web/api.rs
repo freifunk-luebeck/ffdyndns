@@ -7,11 +7,8 @@ use log::{debug, error, info};
 use rocket;
 use rocket::http::Status;
 use rocket::State;
-use rocket::{get, put};
-use serde_json as json;
-use serde_json::json;
+use rocket::{get};
 use std::net::IpAddr;
-use tera::{self};
 use rocket::response::{content::Plain};
 
 

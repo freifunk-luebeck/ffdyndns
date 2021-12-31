@@ -37,7 +37,7 @@ impl Database {
     }
 
 	fn delete(&self, key: String) {
-        self.conn.lock().unwrap().remove(key);
+        self.conn.lock().unwrap().remove(key).expect("cannot remove key");
     }
 
     fn list(&self) -> Vec<Vec<u8>> {
@@ -78,6 +78,7 @@ impl Database {
 		).unwrap();
 	}
 
+	#[allow(dead_code)]
 	pub fn update_validity(&self, domain: &String, valid_until: DateTime<Utc>) {
 		let mut d = self.get_domain(domain).unwrap();
 		d.valid_until = valid_until;
@@ -161,6 +162,7 @@ impl Domain {
 	}
 
 	/// creates a new Domain object and generates a random token
+	#[allow(dead_code)]
 	pub fn new(domain: String, validity: Duration) -> Self {
 		Self {
 			domainname: domain,

@@ -14,7 +14,6 @@ use config::Config;
 use crate::db::Database;
 use lazy_static::lazy_static;
 use pretty_env_logger;
-use rocket::launch;
 use std::fs;
 use std::io::{Read, Write};
 use std::path;

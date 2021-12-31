@@ -10,7 +10,6 @@ use serde_json as json;
 use serde_json::json;
 use serde::{Deserialize, Serialize};
 use super::AppState;
-use tera;
 
 
 
@@ -47,7 +46,7 @@ impl<T> TemplateContext<T> {
 
 
 #[get("/")]
-pub fn index(state: &State<AppState>) -> Template {
+pub fn index(_state: &State<AppState>) -> Template {
 	Template::render(
 		"index",
 		TemplateContext::empty()

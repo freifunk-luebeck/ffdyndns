@@ -1,35 +1,20 @@
 mod api;
 mod web;
 
-use crate::db::{self, Database, Domain};
-use crate::domain::Dname;
 use crate::ffdyndns;
-use chrono::DateTime;
-use chrono::Utc;
 #[allow(unused_imports)]
 use log::{debug, error, info};
-use rand;
 use rocket;
-use rocket::get;
-use rocket::post;
 use rocket::request::FromRequest;
 use rocket::request::Outcome;
 use rocket::http::Status;
 use rocket::request::Request;
-use rocket::response::content;
-use rocket::response::content::Html;
 use rocket::routes;
-use rocket::State;
-use serde_json as json;
-use serde_json::json;
 use std::fmt::{self, Display};
 use std::net::IpAddr;
-use tera::Tera;
-use tera::{self};
-use std::net::SocketAddr;
 use crate::CONFIG;
 use rocket::fs::FileServer;
-use rocket_dyn_templates::{Template, Engines};
+use rocket_dyn_templates::Template;
 
 
 pub struct AppState {
@@ -75,10 +60,6 @@ pub struct AuthorizationToken(String);
 impl AuthorizationToken {
 	pub fn inner(&self) -> &String {
 		&self.0
-	}
-
-	pub fn into_inner(self) -> String {
-		self.0
 	}
 }
 

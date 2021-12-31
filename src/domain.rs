@@ -1,6 +1,4 @@
-use domain::base::ParsedDname;
 use std::str::FromStr;
-use rocket::form::Form;
 use rocket::http::RawStr;
 use std::fmt;
 use rocket::request::FromParam;
@@ -12,6 +10,7 @@ pub struct Dname{
 	parts: Vec<String>,
 }
 
+#[allow(dead_code)]
 impl Dname {
 	pub fn new(mut domain: String) -> Self {
 		if !domain.ends_with(".") {

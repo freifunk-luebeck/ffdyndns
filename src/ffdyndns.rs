@@ -11,7 +11,6 @@ use crate::CONFIG;
 use std::sync::mpsc;
 use crate::nsupdate::{self, nsupdate::UpdateMessage};
 use std::sync::{Arc, Mutex};
-use chrono::Duration;
 
 /// token length in bytes
 /// The hex length will be double the length
@@ -33,6 +32,7 @@ pub enum Error {
 	InvalidToken,
 	InvalidDomain,
 	DomainExists,
+	#[allow(dead_code)]
 	RecordTypeNotMatching,
 }
 
@@ -151,9 +151,4 @@ pub fn generate_token() -> Token {
 		token.push_str(&format!("{:02x}", rand::random::<u8>()));
 	}
 	token
-}
-
-pub fn domainname_is_blocklisted(d: &String) -> bool {
-	unimplemented!()
-	// todo
 }
