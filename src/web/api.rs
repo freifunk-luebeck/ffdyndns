@@ -1,30 +1,18 @@
 use super::AppState;
-use super::AuthorizationToken;
 use super::ClientIp;
-use crate::db::{self, Database, Domain};
 use crate::domain::Dname;
-use crate::ffdyndns::{Error, UpdateRequest};
-use chrono::DateTime;
-use chrono::Utc;
+use crate::ffdyndns::UpdateRequest;
+#[allow(unused_imports)]
 use log::{debug, error, info};
-use rand;
 use rocket;
 use rocket::http::Status;
-use rocket::request::FromRequest;
-use rocket::request::Outcome;
-use rocket::request::Request;
-use rocket::response::content;
-use rocket::response::content::Html;
-use rocket::routes;
 use rocket::State;
 use rocket::{get, put};
 use serde_json as json;
 use serde_json::json;
-use std::fmt::{self, Display};
 use std::net::IpAddr;
-use tera::Tera;
 use tera::{self};
-use rocket::response::{self, content::Plain};
+use rocket::response::{content::Plain};
 
 
 #[get("/update?<token>&<domain>&<ip>")]

@@ -1,32 +1,16 @@
-use chrono::DateTime;
-use chrono::Utc;
 use crate::CONFIG;
-use crate::db::{self, Database, Domain};
 use crate::domain::Dname;
-use lazy_static::lazy_static;
+#[allow(unused_imports)]
 use log::{debug, error, info};
-use rand;
 use rocket_dyn_templates::Template;
 use rocket;
 use rocket::get;
-use rocket::post;
-use rocket::request::FromRequest;
-use rocket::request::Outcome;
-use rocket::request::Request;
-use rocket::response::content::{self, Html};
-use std::fs::File;
-use rocket::routes;
 use rocket::State;
 use serde_json as json;
 use serde_json::json;
 use serde::{Deserialize, Serialize};
-use std::fmt::{self, Display};
-use std::net::IpAddr;
-use std::path::PathBuf;
 use super::AppState;
-use super::ClientIp;
-use tera::{self};
-use tera::Tera;
+use tera;
 
 
 
@@ -78,14 +62,12 @@ pub fn newdomain(
 	suffix: Option<String>,
 	tos: Option<bool>,
 ) -> Template {
-	let mut template_data: json::Value = json!({});
-
-	match (&domainname, &suffix, tos) {
+	let mut template_data = match (&domainname, &suffix, tos) {
 		(Some(name), Some(suffix), Some(tos)) if tos => {
 			let newdomain: Dname = format!("{}.{}", name, suffix).parse().unwrap();
 			let r = state.service.new_domain(newdomain.clone());
 
-			template_data = json!({
+			json!({
 				"form_request": true,
 				"error": r.is_err(),
 				"errormsg": r,
@@ -94,12 +76,12 @@ pub fn newdomain(
 			});
 		}
 		_ => {
-			template_data = json!({
+			json!({
 				"form_request": false,
 				"available_domains": CONFIG.domain.iter().map(|x| &x.name).collect::<Vec<&String>>()
 			})
 		}
-	}
+	};
 
 	Template::render(
 		"newdomain",
