@@ -3,7 +3,7 @@ Description=Simple dynamic dns service
 After=network.target pdns.service
 
 [Service]
-ExecStart=/usr/bin/ffdyndns
+ExecStart=/usr/bin/ffdyndns --server
 WorkingDirectory=/usr/lib/ffdyndns
 Restart=on-abort
 
