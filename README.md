@@ -1,5 +1,5 @@
 # FFdynDNS
-[![pipeline status](https://git.chaotikum.org/paul/ffdyndns/badges/master/pipeline.svg)](https://git.chaotikum.org/paul/ffddns/-/commits/master)
+[![pipeline status](https://git.chaotikum.org/freifunk-luebeck/ffdyndns/badges/master/pipeline.svg)](https://git.chaotikum.org/freifunk-luebeck/ffdyndns/-/pipelines/latest)
 
 Current debian package [ffdyndns.deb](https://freifunk-luebeck.pages.chaotikum.org/ffdyndns/ffdyndns.deb)
 
