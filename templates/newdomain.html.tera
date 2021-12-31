@@ -16,10 +16,10 @@
 </div>
 <div>
 	<h2>Set to your current IP:</h2>
-	<code>curl http://localhost:8053/api/update?token={{ data.token.Ok }}&domain={{ data.domainname }}</code>
+	<code>curl http://{{ server_url }}/api/update?token={{ data.token.Ok }}&domain={{ data.domainname }}</code>
 
 	<h2>Set to a specific IP:</h2>
-	<code>curl http://localhost:8053/api/update?token={{ data.token.Ok }}&domain={{ data.domainname }}&ip=1.2.3.4</code>
+	<code>curl http://{{ server_url }}/api/update?token={{ data.token.Ok }}&domain={{ data.domainname }}&ip=1.2.3.4</code>
 </div>
 {% endif %}
 

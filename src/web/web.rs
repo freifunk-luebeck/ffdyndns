@@ -90,7 +90,7 @@ pub fn newdomain(
 				"error": r.is_err(),
 				"errormsg": r,
 				"token": r,
-				"domainname": newdomain.to_string(),
+				"domainname": newdomain.to_string()
 			});
 		}
 		_ => {
