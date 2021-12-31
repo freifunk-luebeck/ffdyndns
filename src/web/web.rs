@@ -62,7 +62,7 @@ pub fn newdomain(
 	suffix: Option<String>,
 	tos: Option<bool>,
 ) -> Template {
-	let mut template_data = match (&domainname, &suffix, tos) {
+	let template_data = match (&domainname, &suffix, tos) {
 		(Some(name), Some(suffix), Some(tos)) if tos => {
 			let newdomain: Dname = format!("{}.{}", name, suffix).parse().unwrap();
 			let r = state.service.new_domain(newdomain.clone());
@@ -73,7 +73,7 @@ pub fn newdomain(
 				"errormsg": r,
 				"token": r,
 				"domainname": newdomain.to_string()
-			});
+			})
 		}
 		_ => {
 			json!({
