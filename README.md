@@ -5,25 +5,37 @@ Current debian package [ffdyndns.deb](https://freifunk-luebeck.pages.chaotikum.o
 
 Freifunk dynamic DNS Service
 
-# Ideen
+# Nginx config
 
-Ich würde das ganze gernn so gestalten, dass keine Accounts notwendig sind um subdomains
-zu registrieren und zu updaten. Der Grund ist, dass wir so so gut wie keine personalisierten
-Daten speichern müssen.
+Webserver must set `X-Forwarded-For` header. Otherwise ffdyndns cannont know the ip address of the client.
 
 
+# DNS config
 
-- Beim registrieren einer Domain wird ein Token generiert
-- Beim update über http-api muss das Token mitgeschickt werden
-	- so wissen wir, dass der Client berechtigt ist, die Domain zu updaten
-- Jede Domain hat einen Counter der initial auf 90 Tage gesetzt ist
-	- Letsencrypt Zertifikate sind auch für 90 Tage gültig
-- Der Counter zählt runter
-- Mit jedem update wird der Counter wieder auf 90 Tage gesetz
-- Wenn der Counter 0 erreicht wird die Domain wieder freigegeben
-	- Token wird gelöscht
-	- Domain kann wieder registriert werden
+An example bind config:
 
-Über das Token könnte man auch zusätzliche Dinge realisieren, die Authentifizierung benötigen.
-Z.B. ein simples Webinterface um einzusehen, wann die Domain zuletzt geupdatet wurde oder um sie
-manuell freizugeben.
+```
+zone "example.com" {
+        type master;
+        file "example.com";
+        allow-update {
+             127.0.0.1 ;
+        };
+};
+```
+
+And a zonefile for that zone:
+
+```
+$ORIGIN .
+$TTL 30 ; 30 seconds
+example.com         IN SOA  ns.example.com. hostmaster.example.com. (
+                                2016062805 ; serial
+                                3600       ; refresh (1 hour)
+                                600        ; retry (10 minutes)
+                                2600       ; expire (43 minutes 20 seconds)
+                                30         ; minimum (30 seconds)
+                                )
+                        NS      ns.example.com.
+                        NS      ns2.example.com.
+```
